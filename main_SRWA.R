@@ -10,6 +10,7 @@
 
 warning("Set working directory to source file location.")
 
+library(mgcv)
 library(tidyverse)
 library(GGally)
 library(lubridate)
