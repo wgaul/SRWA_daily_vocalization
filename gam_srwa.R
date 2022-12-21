@@ -152,43 +152,7 @@ ggplot(data = srwa, aes(x = time_of_day, y = resids_GI)) +
 ggplot(data = srwa, aes(x = point_id, y = resids_GS)) + 
   geom_boxplot() + 
   ylim(-5, 20)
+ggplot(data = srwa, aes(x = point_id, y = resids_GI)) + 
+  geom_boxplot() + 
+  ylim(-5, 20)
 
-
-## try adding autocorrelation
-# see http://r.qcbs.ca/workshop08/book-en/quick-intro-to-generalized-additive-mixed-models-gamms.html
-acf(resid(srwa_gam_02)) # autocorrelation at all time points
-pacf(resid(srwa_gam_02)) # autocorrelation at all lags after controlling for shorter lags
-
-# gamm with no autocorrelation
-srwa_gamm_ar0 <- gamm(SRWA ~ 1 + observer + factor(as.character(point_id)) + 
-                        s(as.numeric(time_of_day), bs = "cc", k = 6) + 
-                        s(as.numeric(time_of_day), bs = "cc", 
-                          by = factor(as.character(point_id)), 
-                          k = 6, m = 1),
-                      family = binomial(), 
-                      data = data.frame(srwa))
-
-# autocorrelation at 1 minute lag
-srwa_gamGS_ar1 <- gamm(SRWA ~ 1 + s(time_of_day_sec, k = 10, bs = "cc") + 
-                        s(time_of_day_sec, point_id, k = 10, bs = "fs", m = 2), 
-                      data = srwa, method = "REML", 
-                      family = binomial(), 
-                      correlation = corARMA(
-                        form = ~1 | time_of_day_sec, p = 60),
-                      knots = list(time_of_day_sec=c(0, 86400)))
-  
-  
-
-
-# autocorrelation at 2 minute lag
-srwa_gamm_ar2 <- gamm(SRWA ~ 1 + observer + factor(as.character(point_id)) + 
-                        s(as.numeric(time_of_day), bs = "cc", k = 6) + 
-                        s(as.numeric(time_of_day), bs = "cc", 
-                          by = factor(as.character(point_id)), 
-                          k = 6, m = 1), 
-                      correlation = corARMA(
-                        form = ~1 | as.numeric(time_of_day), p = 2),
-                      family = binomial(), 
-                      data = data.frame(srwa))
-
-AIC(srwa_gamm_ar0$lme, srwa_gamm_ar1$lme)

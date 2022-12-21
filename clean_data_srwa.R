@@ -71,6 +71,9 @@ srwa$observer <- factor(as.character(srwa$observer))
 srwa$rain <- factor(as.character(
   grepl(".*rain.*|.*Rain.*", srwa$notes)))
 
+# remove duplicate rows
+srwa <- unique(srwa)
+
 # Some locations and/or dates have more than 4 minutes of data per hour.
 # Most locations and dates have 4 minutes of data per hour.
 # This is because:
@@ -79,5 +82,36 @@ srwa$rain <- factor(as.character(
 # more (e.g. 5 or 10) minutes per hour.
 # For now, we will keep all data, because uneven amounts of data from different
 # locations should not be particularly problematic for our models.  We could
-# change this if reviewers want later.  I do not expect rarifying data to 
+# change this if reviewers want later.  I do not expect rarefying data to 
 # 4 minutes per hour to change conclusions.
+
+## Rarefying to 4 minutes per hour just to be sure this does not change things
+srwa_rarefied <- srwa
+srwa_rarefied$hour <- hour(srwa$time_of_day)
+
+flnms <- unique(srwa$filename) 
+# if there are more than 8 minutes annotated from a file, rarefy the data to 
+# have only 8 minutes (4 per hour)
+for(i in 1:length(flnms)) {
+  if(length(which(srwa_rarefied$filename == flnms[i])) > 8) {
+    # find number of minutes from hour zero of this recording
+    n0 <- length(which(
+      srwa_rarefied$hour_of_recording[srwa_rarefied$filename == flnms[i]] == 0))
+    # find number of minutes from hour one of this recording
+    n1 <- length(which(
+      srwa_rarefied$hour_of_recording[srwa_rarefied$filename == flnms[i]] == 1))
+    
+    # drop all but the last four minutes that were annotated for hour zero
+    if(n0 > 4) {
+      srwa_rarefied <- srwa_rarefied[-which(
+        srwa_rarefied$filename == flnms[i] & 
+          srwa_rarefied$hour_of_recording == 0)[1:(n0-4)], ]
+    }
+    # drop all but the last four minutes that were annotated for hour one
+    if(n1 > 4) {
+      srwa_rarefied <- srwa_rarefied[-which(
+        srwa_rarefied$filename == flnms[i] & 
+          srwa_rarefied$hour_of_recording == 1)[1:(n1-4)], ]
+    }
+  }
+}
