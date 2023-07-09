@@ -3,20 +3,32 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com   & Ellie Roark
 ## created: 28 Oct 2022
-## last modified: 28 Oct 2022
+## last modified: 8 July 2023
 ######################
 
-srwa <- read.csv("../data/ReedWarbler_detections_5Nov2022.csv")
+srwa <- read.csv("../data/Reed_Warbler_detections_8July2023.csv")
+jie_srwa <- read_csv("../data/Reed_Warbler_detections_Jie_8July2023.csv", 
+                     na = c("NA", "N/A", ""))
 
 # drop blank rows
 srwa <- srwa[which(!is.na(srwa$filename)), ]
 srwa <- srwa[which(srwa$filename != ""), ]
+jie_srwa <- jie_srwa[which(!is.na(jie_srwa$filename)), ]
+jie_srwa <- jie_srwa[which(jie_srwa$filename != ""), ]
+
 
 # drop rows that were not evaluated for SRWA b/c of noise or some other reason
 srwa <- srwa[!is.na(srwa$SRWA), ]
+jie_srwa <- jie_srwa[!is.na(jie_srwa$SRWA), ]
+jie_srwa$observer <- "JL"
+
+# join Ellie, Willson, and Jie's data
+if(identical(colnames(srwa), colnames(jie_srwa))) {
+  srwa <- bind_rows(srwa, jie_srwa)
+} else stop("Jie and Ellie / Willson data do not have same columns")
 
 # add metadata
-md <- read.csv("../data/metadata_ReedWarbler_DailyVoc.csv")
+md <- read.csv("../data/metadata_ReedWarbler_DailyVoc_8July2023.csv")
 md$filename <- gsub(".wav", "", md$filename)
 md_e_saipan <- read.csv("~/Documents/Saipan_ecology/data/audio_recordings/Saipan_ARU_from_Ellie/aru_file_METADATA.csv")
 colnames(md_e_saipan)[colnames(md_e_saipan) == "loc_name"] <- "point_id"
@@ -32,7 +44,7 @@ srwa <- left_join(srwa, md, by = "filename")
 
 rm(md)
 rm(md_e_saipan)
-
+rm(jie_srwa)
 
 # Add the start time of song, which is hh:mm:ss since beginning of recording,
 # to the time of day when the recording started.
@@ -66,13 +78,25 @@ srwa$time_of_day_sec <- as.numeric(srwa$time_of_day)
 
 # add date
 srwa$date_fac <- factor(as.character(date(srwa$rec_start_time)))
+srwa$month <-  factor(as.character(month(date(srwa$rec_start_time))))
+srwa$season <- NA
+srwa$season[srwa$month %in% c(1, 2, 3)] <- "winter"
+srwa$season[srwa$month %in% c(7, 8)] <- "summer"
+srwa$season <- factor(as.character(srwa$season))
 
 srwa$observer <- factor(as.character(srwa$observer))
-srwa$rain <- factor(as.character(
-  grepl(".*rain.*|.*Rain.*", srwa$notes)))
+srwa$rain_wind <- factor(as.character(
+  grepl(".*rain.*|.*Rain.*|.*wind.*|.*Wind.*", srwa$notes)))
 
 # remove duplicate rows
 srwa <- unique(srwa)
+
+# remove a row where there is a missing minute of hour value
+srwa <- srwa[!is.na(srwa$minute_of_hour), ]
+
+# make a variable for season
+
+
 
 # Some locations and/or dates have more than 4 minutes of data per hour.
 # Most locations and dates have 4 minutes of data per hour.

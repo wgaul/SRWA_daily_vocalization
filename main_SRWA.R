@@ -5,18 +5,24 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com
 ## created: 23 July 2022
-## last modified: 28 Oct 2022
+## last modified: 6 March 2023
 ######################
 
 warning("Set working directory to source file location.")
 
+library(irr)
 library(mgcv)
 library(tidyverse)
 library(GGally)
 library(lubridate)
 library(hms)
 
-## read in and clean data
+check_student_data <- TRUE # compare students' data for trustworthiness?
+if(check_student_data) {
+  source("compare_students_data_SRWA.R")
+}
+
+## read in and clean data to analyze
 source("./clean_data_srwa.R")
 
 ## fit models
