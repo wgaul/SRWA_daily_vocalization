@@ -5,13 +5,14 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com
 ## created: 23 July 2022
-## last modified: 6 March 2023
+## last modified: 13 Aug 2023
 ######################
 
 warning("Set working directory to source file location.")
 
 library(irr)
 library(mgcv)
+library(randomForest)
 library(tidyverse)
 library(GGally)
 library(lubridate)
@@ -27,16 +28,11 @@ source("./clean_data_srwa.R")
 
 ## fit models
 source("./gam_srwa.R")
+source("./rf_srwa.R")
 
-## graphs
-srwa <- group_by(srwa, point_id)
+## graphs, tables, and numbers for text
+source("./plots_main_text_srwa.R")
 
-# vocalization detected or not by time of day
-ggplot(data = srwa, aes(x = time_of_day, y = as.numeric(SRWA))) + 
-  geom_point() + 
-  geom_smooth() +
-  facet_wrap(~point_id, ncol = 2) + 
-  theme_bw()
 
 sink(file = "session_info.txt", append = FALSE)
 print(Sys.time())
