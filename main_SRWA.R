@@ -20,6 +20,7 @@ library(hms)
 
 if(!dir.exists("./saved_objects")) dir.create("./saved_objects")
 
+on_cloud <- FALSE
 check_student_data <- FALSE # compare students' data for trustworthiness?
 # fit gams?  Takes time.  If FALSE, will try to load fitted models from saved 
 # objects

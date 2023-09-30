@@ -6,9 +6,17 @@
 ## last modified: 8 July 2023
 ######################
 
-srwa <- read.csv("../data/Reed_Warbler_detections_8July2023.csv")
-jie_srwa <- read_csv("../data/Reed_Warbler_detections_Jie_8July2023.csv", 
-                     na = c("NA", "N/A", ""))
+if(!on_cloud) {
+  srwa <- read.csv("../data/Reed_Warbler_detections_8July2023.csv")
+  jie_srwa <- read_csv("../data/Reed_Warbler_detections_Jie_8July2023.csv", 
+                       na = c("NA", "N/A", ""))
+}
+if(on_cloud) {
+  srwa <- read.csv("Reed_Warbler_detections_8July2023.csv")
+  jie_srwa <- read_csv("Reed_Warbler_detections_Jie_8July2023.csv", 
+                       na = c("NA", "N/A", ""))
+}
+
 
 # drop blank rows
 srwa <- srwa[which(!is.na(srwa$filename)), ]
