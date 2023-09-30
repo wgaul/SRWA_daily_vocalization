@@ -36,9 +36,19 @@ if(identical(colnames(srwa), colnames(jie_srwa))) {
 } else stop("Jie and Ellie / Willson data do not have same columns")
 
 # add metadata
-md <- read.csv("../data/metadata_ReedWarbler_DailyVoc_8July2023.csv")
+if(!on_cloud) {
+  md <- read.csv("../data/metadata_ReedWarbler_DailyVoc_8July2023.csv")}
+if(on_cloud) {
+  md <- read.csv("metadata_ReedWarbler_DailyVoc_8July2023.csv")
+}
 md$filename <- gsub(".wav", "", md$filename)
-md_e_saipan <- read.csv("~/Documents/Saipan_ecology/data/audio_recordings/Saipan_ARU_from_Ellie/aru_file_METADATA.csv")
+if(!on_cloud) {
+  md_e_saipan <- read.csv("~/Documents/Saipan_ecology/data/audio_recordings/Saipan_ARU_from_Ellie/aru_file_METADATA.csv")
+}
+if(on_cloud) {
+  md_e_saipan <- read.csv("Saipan_ARU_from_Ellie/aru_file_METADATA.csv")
+}
+
 colnames(md_e_saipan)[colnames(md_e_saipan) == "loc_name"] <- "point_id"
 
 # get different metadata dfs to have the same variables
