@@ -1,10 +1,11 @@
 #####################
 ## Fit GAMs for Saipan Reed Warbler daily vocalization patterns
 ## 
+## TODO: 
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com  & Ellie Roark
 ## created: 28 Oct 2022
-## last modified: 13 Aug 2023
+## last modified: 26 Aug 2023
 ######################
 
 # references:
@@ -39,33 +40,42 @@ ggplot(data = srwa, aes(x = time_of_day, y = as.numeric(SRWA),
 ## models with random effect for location and day, 
 ## fixed effects for other variables
 # global smoother plus group-level smoothers that have the same wiggliness (GS)
-m_01 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
-              s(time_of_day_sec, point_id, k = 10, bs = "fs", 
-                m = 2) + 
-              s(date_fac, k = 27, bs = "re") +
-              season + 
-              observer + rain_wind, 
-            data = srwa, method = "REML", 
-            family = binomial(), 
-            knots = list(time_of_day_sec=c(0, 86400)))
+if(fit_gam) {
+  m_01 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+                s(time_of_day_sec, point_id, k = 10, bs = "fs", 
+                  m = 2) + 
+                s(date_fac, k = 27, bs = "re") +
+                season + 
+                observer + rain_wind, 
+              data = srwa, method = "REML", 
+              family = binomial(), 
+              knots = list(time_of_day_sec=c(0, 86400)))
+  write_rds(m_01, "./saved_objects/m_01.rds")
+} else m_01 <- read_rds("./saved_objects/m_01.rds")
+
 gam.check(m_01)
 plot(m_01, pages = 1, all.terms = T)
 
 # global smoother plus group-level smoothers that have different wiggliness (GI)
-m_02 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, m = 2, bs = "cc") + 
-              s(time_of_day_sec, by = point_id, k = 10, m = 1, bs = "cc") +
-              s(date_fac, k = 27, bs = "re") +
-              season + 
-              observer + rain_wind, 
-            data = srwa, method = "REML", 
-            family = binomial(), 
-            knots = list(time_of_day_sec=c(0, 86400)))
+if(fit_gam) {
+  m_02 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, m = 2, bs = "cc") + 
+                s(time_of_day_sec, by = point_id, k = 10, m = 1, bs = "cc") +
+                s(date_fac, k = 27, bs = "re") +
+                season + 
+                observer + rain_wind, 
+              data = srwa, method = "REML", 
+              family = binomial(), 
+              knots = list(time_of_day_sec=c(0, 86400)))
+  write_rds(m_02, "./saved_objects/m_02.rds")
+} else m_02 <- read_rds("./saved_objects/m_02.rds")
+
 gam.check(m_02)
 plot(m_02, pages = 1, all.terms = T)
 
 # global smoother plus group-level smoothers that have the same wiggliness (GS)
 # No season fixed effect
-m_03 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+if(fit_gam) {
+  m_03 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
               s(time_of_day_sec, point_id, k = 10, bs = "fs", 
                 m = 2) + 
               s(date_fac, k = 27, bs = "re") +
@@ -73,104 +83,327 @@ m_03 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") +
             data = srwa, method = "REML", 
             family = binomial(), 
             knots = list(time_of_day_sec=c(0, 86400)))
+  write_rds(m_03, "./saved_objects/m_03.rds")
+} else m_03 <- read_rds("./saved_objects/m_03.rds")
 gam.check(m_03)
 plot(m_03, pages = 1, all.terms = T)
 
 
 # global smoother plus group-level smoothers that have different wiggliness (GI)
 # No season fixed effect
-m_04 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, m = 2, bs = "cc") + 
+if(fit_gam) {
+  m_04 <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, m = 2, bs = "cc") + 
               s(time_of_day_sec, by = point_id, k = 10, m = 1, bs = "cc") +
               s(date_fac, k = 27, bs = "re") +
               observer + rain_wind, 
             data = srwa, method = "REML", 
             family = binomial(), 
             knots = list(time_of_day_sec=c(0, 86400)))
+  write_rds(m_04, "./saved_objects/m_04.rds")
+}  else m_04 <- read_rds("./saved_objects/m_04.rds")
 gam.check(m_04)
 plot(m_04, pages = 1, all.terms = T)
 
+# global smoother plus group-level smoothers
+# Both point and Day are interaction terms (groups)
+# Smooths for points have different wiggliness
+# Smooths for day have same wiggliness (I think)
+if(fit_gam) {
+  m_05 <- tryCatch(gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+              s(time_of_day_sec, by = point_id, k = 30, bs = "cc") +
+              s(time_of_day_sec, date_fac, k = 30, bs = "fs", 
+                m = 2) + 
+              season + 
+              observer + rain_wind, 
+            data = srwa, method = "REML", 
+            family = binomial(), 
+            knots = list(time_of_day_sec=c(0, 86400))), 
+            error = function(x) NA)
+  write_rds(m_05, "./saved_objects/m_05.rds")
+} else m_05 <- read_rds("./saved_objects/m_05.rds")
+try(gam.check(m_05))
+try(plot(m_05, pages = 1, all.terms = T))
+
+# global smoother plus group-level smoothers that have different wiggliness
+# Both point and Day are interaction terms (groups)
+if(fit_gam) {
+  m_06 <- tryCatch({
+    gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+          s(time_of_day_sec, by = point_id, k = 30, bs = "cc") +
+          s(time_of_day_sec, by = date_fac, k = 30, bs = "cc") +
+          season + 
+          observer + rain_wind, 
+        data = srwa, method = "REML", 
+        family = binomial(), 
+        knots = list(time_of_day_sec=c(0, 86400)))},
+    error = function(x) NA)
+  write_rds(m_06, "./saved_objects/m_06.rds")
+} else m_06 <- read_rds("./saved_objects/m_06.rds")
+try(gam.check(m_06))
+try(plot(m_06, pages = 1, all.terms = T))
 
 ## Model comparison
-aic <- AIC(m_01, m_02, m_03, m_04)
-aic[order(aic$AIC), ]
+aic <- AIC(m_01, m_02, m_03, m_04, m_05, m_06)
+aic <- aic[order(aic$AIC), ]
+aic$delta <- aic$AIC - aic$AIC[1]
+aic
 
 summary(m_03)
-summary(m_01) # Interpret this model because this has all the a-priori variables
+summary(m_01) 
+summary(m_06) # Interpret this model because this has all the a-priori variables
 
+## m_06
 # remove terms individually
-m_01_noDay <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
-                    s(time_of_day_sec, point_id, k = 10, bs = "fs", 
-                      m = 2) + 
-                    season +
-                    observer + rain_wind, 
-                  data = srwa, method = "REML", 
-                  family = binomial(), 
-                  knots = list(time_of_day_sec=c(0, 86400)))
+if(fit_gam) {
+  m_06_noTOD <- tryCatch({
+    gam(SRWA ~ 1 + 
+          point_id +
+          date_fac +
+          season + 
+          observer + rain_wind, 
+        data = srwa, method = "REML", 
+        family = binomial(), 
+        knots = list(time_of_day_sec=c(0, 86400)))},
+    error = function(x) NA)
+  write_rds(m_06_noTOD, "./saved_objects/m_06_noTOD.rds")
+} else m_06_noTOD <- read_rds("./saved_objects/m_06_noTOD.rds")
 
-m_01_noLocation <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
-                         s(date_fac, k = 27, bs = "re") +
-                         season +
-                         observer + rain_wind, 
-                       data = srwa, method = "REML", 
-                       family = binomial(), 
-                       knots = list(time_of_day_sec=c(0, 86400)))
+if(fit_gam) {
+  m_06_noPointID <- tryCatch({
+    gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+          s(time_of_day_sec, by = date_fac, k = 30, bs = "cc") +
+          season + 
+          observer + rain_wind, 
+        data = srwa, method = "REML", 
+        family = binomial(), 
+        knots = list(time_of_day_sec=c(0, 86400)))},
+    error = function(x) NA)
+  write_rds(m_06_noPointID, "./saved_objects/m_06_noPointID.rds")
+} else m_06_noPointID <- read_rds("./saved_objects/m_06_noPointID.rds")
 
-m_01_noObserver <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
-                         s(time_of_day_sec, point_id, k = 10, bs = "fs", 
-                           m = 2) + 
-                         s(date_fac, k = 27, bs = "re") +
-                         season +
-                         rain_wind, 
-                       data = srwa, method = "REML", 
-                       family = binomial(), 
-                       knots = list(time_of_day_sec=c(0, 86400)))
+if(fit_gam) {
+  m_06_noDate <- tryCatch({
+    gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, m = 2, bs = "cc") + 
+          s(time_of_day_sec, by = point_id, k = 10, m = 1, bs = "cc") +
+          season + 
+          observer + rain_wind, 
+        data = srwa, method = "REML", 
+        family = binomial(), 
+        knots = list(time_of_day_sec=c(0, 86400)))},
+    error = function(x) NA) 
+  write_rds(m_06_noDate, "./saved_objects/m_06_noDate.rds")
+} else m_06_noDate <- read_rds("./saved_objects/m_06_noDate.rds")
 
-m_01_noWeather <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
-                        s(time_of_day_sec, point_id, k = 10, bs = "fs", 
+if(fit_gam) {
+  m_06_noSeason <- tryCatch({
+    gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, m = 2, bs = "cc") + 
+          s(time_of_day_sec, by = point_id, k = 10, m = 1, bs = "cc") +
+          s(time_of_day_sec, by = date_fac, k = 10, m = 1, bs = "cc") +
+          observer + rain_wind, 
+        data = srwa, method = "REML", 
+        family = binomial(), 
+        knots = list(time_of_day_sec=c(0, 86400)))},
+    error = function(x) NA)
+  write_rds(m_06_noSeason, "./saved_objects/m_06_noSeason.rds")
+} else m_06_noSeason <- read_rds("./saved_objects/m_06_noSeason.rds")
+
+if(fit_gam) {
+  m_06_noObserver <- tryCatch({
+    gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+          s(time_of_day_sec, by = point_id, k = 30, bs = "cc") +
+          s(time_of_day_sec, by = date_fac, k = 30, bs = "cc") +
+          season + 
+          rain_wind, 
+        data = srwa, method = "REML", 
+        family = binomial(), 
+        knots = list(time_of_day_sec=c(0, 86400)))},
+    error = function(x) NA)
+  write_rds(m_06_noObserver, "./saved_objects/m_06_noObserver.rds")
+} else m_06_noObserver <- read_rds("./saved_objects/m_06_noObserver.rds")
+
+if(fit_gam) {
+  m_06_noRainWind <- tryCatch({
+    gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+          s(time_of_day_sec, by = point_id, k = 30, bs = "cc") +
+          s(time_of_day_sec, by = date_fac, k = 30, bs = "cc") +
+          season + 
+          observer, 
+        data = srwa, method = "REML", 
+        family = binomial(), 
+        knots = list(time_of_day_sec=c(0, 86400)))},
+    error = function(x) NA)
+  write_rds(m_06_noRainWind, "./saved_objects/m_06_noRainWind.rds")
+} else m_06_noRainWind <- read_rds("./saved_objects/m_06_noRainWind.rds")
+
+
+## Tensor product models, following Wood Ch 7 p 335
+if(fit_gam) {
+  m_07 <- gam(SRWA ~ te(time_of_day_sec, doy, by = point_id, 
+                        k = 20, bs = "cc") + 
+                point_id + 
+                observer + rain_wind, 
+              data = srwa, method = "REML", 
+              family = binomial(), 
+              knots = list(time_of_day_sec=c(0, 86400), doy = c(0, 365)))
+  write_rds(m_07, "./saved_objects/m_07.rds")
+  smry_m_07 <- summary(m_07)
+  write_rds(smry_m_07, "./saved_objects/smry_m_07.rds")
+} else {
+  m_07 <- read_rds("./saved_objects/m_07.rds")
+  smry_m_07 <- read_rds("./saved_objects/smry_m_07.rds")
+}
+
+if(fit_gam) {
+  # try with bam()
+  m_07b <- bam(SRWA ~ point_id + 
+                 te(time_of_day_sec, doy, by = point_id, 
+                        k = 20, bs = "cc") + 
+                observer + rain_wind, 
+              data = srwa, method = "REML", 
+              family = binomial(), 
+              knots = list(time_of_day_sec=c(0, 86400), doy = c(0, 365)))
+  write_rds(m_07b, "./saved_objects/m_07b.rds")
+  smry_m_07b <- summary(m_07b)
+  write_rds(smry_m_07b, "./saved_objects/smry_m_07b.rds")
+} else {
+  m_07b <- read_rds("./saved_objects/m_07b.rds")
+  smry_m_07b <- read_rds("./saved_objects/smry_m_07b.rds")
+}
+
+if(fit_gam) {
+  m_08 <- gam(SRWA ~ s(time_of_day_sec, by = point_id, k = 25, bs = "cc") + 
+                s(doy, by = point_id, k = 25, bs = "cc") + 
+                ti(time_of_day_sec, doy, by = point_id, k = 25, bs = "cc") + 
+                point_id + 
+                observer + rain_wind, 
+              data = srwa, method = "REML", 
+              family = binomial(), 
+              knots = list(time_of_day_sec=c(0, 86400), doy = c(0, 365)))
+  write_rds(m_08, "./saved_objects/m_08.rds")
+  smry_m_08 <- summary(m_08)
+  write_rds(smry_m_08, "./saved_objects/smry_m_08.rds")
+} else {
+  m_08 <- read_rds("./saved_objects/m_08.rds")
+  smry_m_08 <- read_rds("./saved_objects/smry_m_08.rds")
+} 
+
+if(fit_gam) {
+  m_08b <- bam(SRWA ~ s(time_of_day_sec, by = point_id, k = 25, bs = "cc") + 
+                s(doy, by = point_id, k = 25, bs = "cc") + 
+                ti(time_of_day_sec, doy, by = point_id, k = 25, bs = "cc") + 
+                point_id + 
+                observer + rain_wind, 
+              data = srwa, method = "REML", 
+              family = binomial(), 
+              knots = list(time_of_day_sec=c(0, 86400), doy = c(0, 365)))
+  write_rds(m_08b, "./saved_objects/m_08b.rds")
+  smry_m_08b <- summary(m_08b)
+  write_rds(smry_m_08b, "./saved_objects/smry_m_08b.rds")
+} else {
+  m_08b <- read_rds("./saved_objects/m_08b.rds")
+  smry_m_08b <- read_rds("./saved_objects/smry_m_08b.rds")
+} 
+
+if(test_terms_m01) {
+  ## m_01
+  # remove terms individually
+  if(fit_gam) {
+    m_01_noDay <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+                        s(time_of_day_sec, point_id, k = 30, bs = "fs", 
                           m = 2) + 
-                        s(date_fac, k = 27, bs = "re") +
                         season +
-                        observer, 
+                        observer + rain_wind, 
                       data = srwa, method = "REML", 
                       family = binomial(), 
                       knots = list(time_of_day_sec=c(0, 86400)))
+    write_rds(m_01_noDay, "./saved_objects/m_01_noDay.rds")
+  } else m_01_noDay <- read_rds("./saved_objects/m_01_noDay.rds")
 
-m_01_noSamplingPeriod <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
-                               s(time_of_day_sec, point_id, k = 10, bs = "fs", 
-                                 m = 2) + 
-                               s(date_fac, k = 27, bs = "re") +
-                               observer + rain_wind, 
-                             data = srwa, method = "REML", 
-                             family = binomial(), 
-                             knots = list(time_of_day_sec=c(0, 86400)))
-
-aic_m01 <- AIC(m_01, m_01_noDay, m_01_noLocation, m_01_noObserver, 
-               m_01_noSamplingPeriod, m_01_noWeather)
-aic_m01 <- aic_m01[order(aic_m01$AIC), ]
-aic_m01$model <- rownames(aic_m01)
-aic_m01 <- aic_m01[, c(3, 1, 2)]
-aic_m01$dev_expl <- NA
-
-m_01_list <- list(m_01_noSamplingPeriod = m_01_noSamplingPeriod, 
-                 m_01_noWeather = m_01_noWeather, 
-                 m_01 = m_01, m_01_noObserver = m_01_noObserver, 
-                 m_01_noDay = m_01_noDay, 
-                 m_01_noLocation = m_01_noLocation)
-for(i in 1:nrow(aic_m01)) {
-  aic_m01$dev_expl[i] <- summary(m_01_list[names(m_01_list) == 
-                                     aic_m01$model[i]][[1]])$dev.expl
+  if(fit_gam) {
+    m_01_noLocation <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+                             s(date_fac, k = 27, bs = "re") +
+                             season +
+                             observer + rain_wind, 
+                           data = srwa, method = "REML", 
+                           family = binomial(), 
+                           knots = list(time_of_day_sec=c(0, 86400)))
+    write_rds(m_01_noLocation, "./saved_objects/m_01_noLocation.rds")
+  } else m_01_noLocation <- read_rds("./saved_objects/m_01_noLocation.rds")
+ 
+  if(fit_gam) {
+    m_01_noObserver <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+                             s(time_of_day_sec, point_id, k = 10, bs = "fs", 
+                               m = 2) + 
+                             s(date_fac, k = 27, bs = "re") +
+                             season +
+                             rain_wind, 
+                           data = srwa, method = "REML", 
+                           family = binomial(), 
+                           knots = list(time_of_day_sec=c(0, 86400)))
+    write_rds(m_01_noObserver, "./saved_objects/m_01_noObserver.rds")
+  } else m_01_noObserver <- read_rds("./saved_objects/m_01_noObserver.rds")
+  
+  if(fit_gam) {
+    m_01_noWeather <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, bs = "cc") + 
+                            s(time_of_day_sec, point_id, k = 10, bs = "fs", 
+                              m = 2) + 
+                            s(date_fac, k = 27, bs = "re") +
+                            season +
+                            observer, 
+                          data = srwa, method = "REML", 
+                          family = binomial(), 
+                          knots = list(time_of_day_sec=c(0, 86400)))
+    write_rds(m_01_noWeather, "./saved_objects/m_01_noWeather.rds")
+  } else m_01_noWeather <- read_rds("./saved_objects/m_01_noWeather.rds")
+  
+  if(fit_gam) {
+    m_01_noSamplingPeriod <- gam(SRWA ~ 1 + s(time_of_day_sec, k = 20, 
+                                              bs = "cc") + 
+                                   s(time_of_day_sec, point_id, k = 10, 
+                                     bs = "fs", m = 2) + 
+                                   s(date_fac, k = 27, bs = "re") +
+                                   observer + rain_wind, 
+                                 data = srwa, method = "REML", 
+                                 family = binomial(), 
+                                 knots = list(time_of_day_sec=c(0, 86400)))
+    write_rds(m_01_noSamplingPeriod, 
+              "./saved_objects/m_01_noSamplingPeriod.rds")
+  } else m_01_noSamplingPeriod <- read_rds("./saved_objects/m_01_noSamplingPeriod.rds")
+  
+  
+  aic_m01 <- AIC(m_01, m_01_noDay, m_01_noLocation, m_01_noObserver, 
+                 m_01_noSamplingPeriod, m_01_noWeather)
+  aic_m01 <- aic_m01[order(aic_m01$AIC), ]
+  aic_m01$model <- rownames(aic_m01)
+  aic_m01 <- aic_m01[, c(3, 1, 2)]
+  aic_m01$dev_expl <- NA
+  
+  m_01_list <- list(m_01_noSamplingPeriod = m_01_noSamplingPeriod, 
+                    m_01_noWeather = m_01_noWeather, 
+                    m_01 = m_01, m_01_noObserver = m_01_noObserver, 
+                    m_01_noDay = m_01_noDay, 
+                    m_01_noLocation = m_01_noLocation)
+  for(i in 1:nrow(aic_m01)) {
+    aic_m01$dev_expl[i] <- summary(m_01_list[names(m_01_list) == 
+                                               aic_m01$model[i]][[1]])$dev.expl
+  }
+  
+  aic_m01
+  aic_m01$AIC_change_from_full_mod <- NA
+  for(i in 1:nrow(aic_m01)) {
+    aic_m01$AIC_change_from_full_mod[i] <- 
+      aic_m01$AIC[i] - aic_m01$AIC[aic_m01$model == "m_01"]
+  }
+  aic_m01 <- aic_m01[order(aic_m01$AIC, decreasing = F), ]
 }
 
-aic_m01
-aic_m01$AIC_change_from_full_mod <- NA
-for(i in 1:nrow(aic_m01)) {
-  aic_m01$AIC_change_from_full_mod[i] <- 
-    aic_m01$AIC[i] - aic_m01$AIC[aic_m01$model == "m_01"]
-}
-aic_m01 <- aic_m01[order(aic_m01$AIC, decreasing = F), ]
+
+AIC(m_07)
 
 
-# look at residuals from chosen model
+summary(m_07)
+
+###### look at residuals from chosen model
 srwa$resids_m01 <- m_01$residuals
 ggplot(data = srwa, aes(x = time_of_day, y = resids_m01)) + 
   geom_point() + 
@@ -220,19 +453,28 @@ standard_dat <- standard_dat[which(!is.na(standard_dat$point_id)), ]
 standard_dat$pred_m01 <- predict(m_01, 
                                  newdata = standard_dat,
                                  type = "response")
+standard_dat$pred_m02 <- predict(m_02, 
+                                 newdata = standard_dat,
+                                 type = "response")
+standard_dat$pred_m05 <- predict(m_05, 
+                                 newdata = standard_dat,
+                                 type = "response")
+standard_dat$pred_m06 <- predict(m_06, 
+                                 newdata = standard_dat,
+                                 type = "response")
 
-# Global predictions (no site or date info) 
-standard_dat_global <- standard_dat[, colnames(standard_dat) %in% 
-                                      c("point_id", "time_of_day_sec", 
-                                        "season", "rain_wind", "observer")]
-standard_dat_global <- unique(standard_dat_global)
-standard_dat_global$pred_m01 <- predict(
-  m_01, 
-  newdata = standard_dat_global,
-  type = "response", 
-  exclude = c("s(date_fac)", 
-              "s(time_of_day_sec,point_id"),
-  newdata.guaranteed = TRUE)
+# # Global predictions (no site or date info) 
+# standard_dat_global <- standard_dat[, colnames(standard_dat) %in% 
+#                                       c("point_id", "time_of_day_sec", 
+#                                         "season", "rain_wind", "observer")]
+# standard_dat_global <- unique(standard_dat_global)
+# standard_dat_global$pred_m01 <- predict(
+#   m_01, 
+#   newdata = standard_dat_global,
+#   type = "response", 
+#   exclude = c("s(date_fac)", 
+#               "s(time_of_day_sec,point_id"),
+#   newdata.guaranteed = TRUE)
 ####
 
 

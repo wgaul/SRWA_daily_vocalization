@@ -5,7 +5,7 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com
 ## created: 23 July 2022
-## last modified: 13 Aug 2023
+## last modified: 26 Aug 2023
 ######################
 
 warning("Set working directory to source file location.")
@@ -18,7 +18,13 @@ library(GGally)
 library(lubridate)
 library(hms)
 
-check_student_data <- TRUE # compare students' data for trustworthiness?
+if(!dir.exists("./saved_objects")) dir.create("./saved_objects")
+
+check_student_data <- FALSE # compare students' data for trustworthiness?
+# fit gams?  Takes time.  If FALSE, will try to load fitted models from saved 
+# objects
+fit_gam <- TRUE 
+
 if(check_student_data) {
   source("compare_students_data_SRWA.R")
 }

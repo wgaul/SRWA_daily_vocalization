@@ -78,6 +78,8 @@ srwa$time_of_day_sec <- as.numeric(srwa$time_of_day)
 
 # add date
 srwa$date_fac <- factor(as.character(date(srwa$rec_start_time)))
+srwa$date_num <- as.numeric(date(srwa$rec_start_time))
+srwa$doy <- yday(date(srwa$rec_start_time))
 srwa$month <-  factor(as.character(month(date(srwa$rec_start_time))))
 srwa$season <- NA
 srwa$season[srwa$month %in% c(1, 2, 3)] <- "winter"
