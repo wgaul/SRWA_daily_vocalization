@@ -239,7 +239,7 @@ if(fit_gam) {
 ## Tensor product models, following Wood Ch 7 p 335
 if(fit_gam) {
   m_07 <- gam(SRWA ~ te(time_of_day_sec, doy, by = point_id, 
-                        k = 20, bs = "cc") + 
+                        k = 15, bs = "cc") + 
                 point_id + 
                 observer + rain_wind, 
               data = srwa, method = "REML", 
@@ -253,22 +253,22 @@ if(fit_gam) {
   smry_m_07 <- read_rds("./saved_objects/smry_m_07.rds")
 }
 
-if(fit_gam) {
-  # try with bam()
-  m_07b <- bam(SRWA ~ point_id + 
-                 te(time_of_day_sec, doy, by = point_id, 
-                        k = 20, bs = "cc") + 
-                observer + rain_wind, 
-              data = srwa, method = "REML", 
-              family = binomial(), 
-              knots = list(time_of_day_sec=c(0, 86400), doy = c(0, 365)))
-  write_rds(m_07b, "./saved_objects/m_07b.rds")
-  smry_m_07b <- summary(m_07b)
-  write_rds(smry_m_07b, "./saved_objects/smry_m_07b.rds")
-} else {
-  m_07b <- read_rds("./saved_objects/m_07b.rds")
-  smry_m_07b <- read_rds("./saved_objects/smry_m_07b.rds")
-}
+# if(fit_gam) {
+#   # try with bam()
+#   m_07b <- bam(SRWA ~ point_id + 
+#                  te(time_of_day_sec, doy, by = point_id, 
+#                         k = 15, bs = "cc") + 
+#                 observer + rain_wind, 
+#               data = srwa, method = "REML", 
+#               family = binomial(), 
+#               knots = list(time_of_day_sec=c(0, 86400), doy = c(0, 365)))
+#   write_rds(m_07b, "./saved_objects/m_07b.rds")
+#   smry_m_07b <- summary(m_07b)
+#   write_rds(smry_m_07b, "./saved_objects/smry_m_07b.rds")
+# } else {
+#   m_07b <- read_rds("./saved_objects/m_07b.rds")
+#   smry_m_07b <- read_rds("./saved_objects/smry_m_07b.rds")
+# }
 
 if(fit_gam) {
   m_08 <- gam(SRWA ~ s(time_of_day_sec, by = point_id, k = 15, bs = "cc") + 
