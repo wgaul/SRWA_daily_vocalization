@@ -24,7 +24,8 @@ on_cloud <- FALSE
 check_student_data <- FALSE # compare students' data for trustworthiness?
 # fit gams?  Takes time.  If FALSE, will try to load fitted models from saved 
 # objects
-fit_gam <- TRUE 
+fit_gam <- FALSE
+fit_rf <- TRUE
 
 if(check_student_data) {
   source("compare_students_data_SRWA.R")

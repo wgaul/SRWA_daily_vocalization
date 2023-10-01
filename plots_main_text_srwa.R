@@ -9,14 +9,7 @@
 
 srwa <- group_by(srwa, point_id)
 
-# vocalization detected or not by time of day
-# geom_smooth (not GAM model)
-ggplot(data = srwa, aes(x = time_of_day, y = as.numeric(SRWA))) + 
-  geom_point() + 
-  geom_smooth() +
-  facet_wrap(~point_id, ncol = 2) + 
-  theme_bw() +
-  ggtitle("Geom smooth\nNot GAM")
+
 
 
 

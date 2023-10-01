@@ -271,9 +271,9 @@ if(fit_gam) {
 }
 
 if(fit_gam) {
-  m_08 <- gam(SRWA ~ s(time_of_day_sec, by = point_id, k = 25, bs = "cc") + 
-                s(doy, by = point_id, k = 25, bs = "cc") + 
-                ti(time_of_day_sec, doy, by = point_id, k = 25, bs = "cc") + 
+  m_08 <- gam(SRWA ~ s(time_of_day_sec, by = point_id, k = 15, bs = "cc") + 
+                s(doy, by = point_id, k = 15, bs = "cc") + 
+                ti(time_of_day_sec, doy, by = point_id, k = 15, bs = "cc") + 
                 point_id + 
                 observer + rain_wind, 
               data = srwa, method = "REML", 
@@ -422,34 +422,7 @@ ggplot(data = srwa, aes(x = time_of_day, y = resids_m03)) +
   ggtitle("m_03")
 
 
-## #############
-## Standardized predictions
-# standard_dat <- srwa[, colnames(srwa) %in% 
-#                        c("point_id", "location", "time_of_day_sec", 
-#                          "date_fac", "season", "rain_wind", "observer")]
-# standard_dat$observer <- standard_dat$observer[1]
-#standard_dat <- standard_dat[order(standard_dat$time_of_day_sec), ]
-loc_date_df <- srwa[, colnames(srwa) %in% c("point_id", "date_fac", "season")]
-loc_date_df <- unique(loc_date_df)
-
-standard_dat <- data.frame(point_id = NA, time_of_day_sec = NA, date_fac = NA, 
-                           season = NA, rain_wind = NA, observer = NA)
-
-for(i in 1:nrow(loc_date_df)) {
-  # generate a prediction every 10 minutes (144 10-minute periods in a day)
-  dat <- data.frame(point_id = loc_date_df$point_id[i], 
-                    date_fac = loc_date_df$date_fac[i], 
-                    time_of_day_sec = seq(from = 0, to = 60*60*24, 
-                                          length.out = 145), 
-                    season = loc_date_df$season[i])
-  standard_dat <- bind_rows(standard_dat, dat)
-}
-standard_dat$observer <- srwa$observer[1] 
-standard_dat$rain_wind <- srwa$rain_wind[1]
-# drop initial NA row from df
-standard_dat <- standard_dat[which(!is.na(standard_dat$point_id)), ]
-
-
+#### Standardized predictions
 standard_dat$pred_m01 <- predict(m_01, 
                                  newdata = standard_dat,
                                  type = "response")

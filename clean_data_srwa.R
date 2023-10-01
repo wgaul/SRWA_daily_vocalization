@@ -46,7 +46,7 @@ if(!on_cloud) {
   md_e_saipan <- read.csv("~/Documents/Saipan_ecology/data/audio_recordings/Saipan_ARU_from_Ellie/aru_file_METADATA.csv")
 }
 if(on_cloud) {
-  md_e_saipan <- read.csv("Saipan_ARU_from_Ellie/aru_file_METADATA.csv")
+  md_e_saipan <- read.csv("aru_file_METADATA.csv")
 }
 
 colnames(md_e_saipan)[colnames(md_e_saipan) == "loc_name"] <- "point_id"
@@ -159,3 +159,37 @@ for(i in 1:length(flnms)) {
     }
   }
 }
+
+
+###############
+## Standardized predictions - make standardized data
+# standard_dat <- srwa[, colnames(srwa) %in% 
+#                        c("point_id", "location", "time_of_day_sec", 
+#                          "date_fac", "season", "rain_wind", "observer")]
+# standard_dat$observer <- standard_dat$observer[1]
+#standard_dat <- standard_dat[order(standard_dat$time_of_day_sec), ]
+loc_date_df <- srwa[, colnames(srwa) %in% c("point_id", "date_fac", "season")]
+loc_date_df <- unique(loc_date_df)
+
+standard_dat <- data.frame(point_id = NA, time_of_day_sec = NA, date_fac = NA,
+                           doy = NA, season = NA, rain_wind = NA, 
+                           observer = NA)
+
+doys <- seq(from = 0, to = 365, by = 30)
+for(i in 1:nrow(loc_date_df)) {
+  for(j in doys) {
+    # generate a prediction every 10 minutes (144 10-minute periods in a day)
+    dat <- data.frame(point_id = loc_date_df$point_id[i], 
+                      date_fac = loc_date_df$date_fac[i], 
+                      time_of_day_sec = seq(from = 0, to = 60*60*24, 
+                                            length.out = 145), 
+                      doy = j,
+                      season = loc_date_df$season[i])
+    standard_dat <- bind_rows(standard_dat, dat)
+  }
+}
+standard_dat$observer <- srwa$observer[1] 
+standard_dat$rain_wind <- srwa$rain_wind[1]
+# drop initial NA row from df
+standard_dat <- standard_dat[which(!is.na(standard_dat$point_id)), ]
+
