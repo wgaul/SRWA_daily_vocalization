@@ -24,7 +24,7 @@ kappa_calc <- function(x, resp, pred) {
                      pred = factor(as.numeric(pred[!is.na(pred)] > x)))
   psych::cohen.kappa(vals)$kappa
 }
-kappas <- seq(from = 0, to = 1, by = 0.1) # Thresholds to try
+kappas <- seq(from = 0, to = 1, by = 0.01) # Thresholds to try
 names(kappas) <- kappas
 
 #### End define functions -----------------------------------------------------
@@ -33,7 +33,8 @@ names(kappas) <- kappas
 
 # mods <- list(rf_01 = rf_01, rf_02 = rf_02, m_07 = m_07, m_08 = m_08)
 
-eval_df <- data.frame(model = c("rf_01", "rf_02", "m_07", "m_08"), 
+eval_df <- data.frame(model = c("rf_01", "rf_02", "rf_03", "rf_04", "rf_cv01",
+                                "m_07", "m_08"), 
                       AUC = NA, Kappa = NA, TPR = NA, FPR = NA, TNR = NA, 
                       FNR = NA, Brier = NA)
 
@@ -78,7 +79,7 @@ eval_df$Brier[eval_df$model == "rf_01"] <- mean(sq_er)
 
 
 
-## performance for rf_02
+##### performance for rf_02
 eval_df$AUC[eval_df$model == "rf_02"] <-  as.numeric(pROC::roc(
   response = srwa$SRWA, 
   predictor = srwa$pred_rf_02)$auc)
@@ -117,3 +118,129 @@ sq_er <- (pr - ob)^2
 # mean squared error (Brier score)
 eval_df$Brier[eval_df$model == "rf_02"] <- mean(sq_er) 
 
+
+#### performance for rf_03
+eval_df$AUC[eval_df$model == "rf_03"] <-  as.numeric(pROC::roc(
+  response = srwa$SRWA, 
+  predictor = srwa$pred_rf_03)$auc)
+
+k_res <- sapply(kappas, kappa_calc, 
+                resp = srwa$SRWA, 
+                pred = srwa$pred_rf_03)
+# return kappa and threshold that maximised kappa
+eval_df$Kappa[eval_df$model == "rf_03"] <- max(k_res)
+if(max(k_res) == 0) {thresh <- 0.5} else {
+  thresh <- as.numeric(names(k_res[k_res == max(k_res)][1]))}
+
+# TPR = TP / P
+eval_df$TPR[eval_df$model == "rf_03"] <- length(
+  which(srwa$SRWA == TRUE & (srwa$pred_rf_03 >= thresh))) / 
+  length(which(srwa$SRWA == TRUE))
+# TNR = TN / N
+eval_df$TNR[eval_df$model == "rf_03"] <- length(
+  which(srwa$SRWA == FALSE & (srwa$pred_rf_03 < thresh))) / 
+  length(which(srwa$SRWA == FALSE))
+# FPR = FP / N
+eval_df$FPR[eval_df$model == "rf_03"] <- length(
+  which(srwa$SRWA == FALSE & (srwa$pred_rf_03 >= thresh))) / 
+  length(which(srwa$SRWA == FALSE))
+# FNR = FN / P
+eval_df$FNR[eval_df$model == "rf_03"] <- length(
+  which(srwa$SRWA == TRUE & (srwa$pred_rf_03 < thresh))) / 
+  length(which(srwa$SRWA == TRUE))
+
+# Brier score
+pr <- srwa$pred_rf_03 # predicted values
+# observed values
+ob <- as.numeric(as.logical(as.character(srwa$SRWA)))
+# squared error
+sq_er <- (pr - ob)^2
+# mean squared error (Brier score)
+eval_df$Brier[eval_df$model == "rf_03"] <- mean(sq_er) 
+
+
+
+#### performance for rf_04
+eval_df$AUC[eval_df$model == "rf_04"] <-  as.numeric(pROC::roc(
+  response = srwa$SRWA, 
+  predictor = srwa$pred_rf_04)$auc)
+
+k_res <- sapply(kappas, kappa_calc, 
+                resp = srwa$SRWA, 
+                pred = srwa$pred_rf_04)
+# return kappa and threshold that maximised kappa
+eval_df$Kappa[eval_df$model == "rf_04"] <- max(k_res)
+if(max(k_res) == 0) {thresh <- 0.5} else {
+  thresh <- as.numeric(names(k_res[k_res == max(k_res)][1]))}
+
+# TPR = TP / P
+eval_df$TPR[eval_df$model == "rf_04"] <- length(
+  which(srwa$SRWA == TRUE & (srwa$pred_rf_04 >= thresh))) / 
+  length(which(srwa$SRWA == TRUE))
+# TNR = TN / N
+eval_df$TNR[eval_df$model == "rf_04"] <- length(
+  which(srwa$SRWA == FALSE & (srwa$pred_rf_04 < thresh))) / 
+  length(which(srwa$SRWA == FALSE))
+# FPR = FP / N
+eval_df$FPR[eval_df$model == "rf_04"] <- length(
+  which(srwa$SRWA == FALSE & (srwa$pred_rf_04 >= thresh))) / 
+  length(which(srwa$SRWA == FALSE))
+# FNR = FN / P
+eval_df$FNR[eval_df$model == "rf_04"] <- length(
+  which(srwa$SRWA == TRUE & (srwa$pred_rf_04 < thresh))) / 
+  length(which(srwa$SRWA == TRUE))
+
+# Brier score
+pr <- srwa$pred_rf_04 # predicted values
+# observed values
+ob <- as.numeric(as.logical(as.character(srwa$SRWA)))
+# squared error
+sq_er <- (pr - ob)^2
+# mean squared error (Brier score)
+eval_df$Brier[eval_df$model == "rf_04"] <- mean(sq_er) 
+
+
+
+##### Cross validation measures -----------------------------------------------
+#### performance for rf_cv01
+eval_df$AUC[eval_df$model == "rf_cv01"] <-  as.numeric(pROC::roc(
+  response = rf_cv01_testData$SRWA, 
+  predictor = rf_cv01_testData$pred_rw_cv01)$auc)
+
+k_res <- sapply(kappas, kappa_calc, 
+                resp = rf_cv01_testData$SRWA, 
+                pred = rf_cv01_testData$pred_rw_cv01)
+# return kappa and threshold that maximised kappa
+eval_df$Kappa[eval_df$model == "rf_cv01"] <- max(k_res)
+if(max(k_res) == 0) {thresh <- 0.5} else {
+  thresh <- as.numeric(names(k_res[k_res == max(k_res)][1]))}
+
+# TPR = TP / P
+eval_df$TPR[eval_df$model == "rf_cv01"] <- length(
+  which(rf_cv01_testData$SRWA == TRUE & 
+          (rf_cv01_testData$pred_rw_cv01 >= thresh))) / 
+  length(which(rf_cv01_testData$SRWA == TRUE))
+# TNR = TN / N
+eval_df$TNR[eval_df$model == "rf_cv01"] <- length(
+  which(rf_cv01_testData$SRWA == FALSE & 
+          (rf_cv01_testData$pred_rw_cv01 < thresh))) / 
+  length(which(rf_cv01_testData$SRWA == FALSE))
+# FPR = FP / N
+eval_df$FPR[eval_df$model == "rf_cv01"] <- length(
+  which(rf_cv01_testData$SRWA == FALSE & 
+          (rf_cv01_testData$pred_rw_cv01 >= thresh))) / 
+  length(which(rf_cv01_testData$SRWA == FALSE))
+# FNR = FN / P
+eval_df$FNR[eval_df$model == "rf_cv01"] <- length(
+  which(rf_cv01_testData$SRWA == TRUE & 
+          (rf_cv01_testData$pred_rw_cv01 < thresh))) / 
+  length(which(rf_cv01_testData$SRWA == TRUE))
+
+# Brier score
+pr <- rf_cv01_testData$pred_rw_cv01 # predicted values
+# observed values
+ob <- as.numeric(as.logical(as.character(rf_cv01_testData$SRWA)))
+# squared error
+sq_er <- (pr - ob)^2
+# mean squared error (Brier score)
+eval_df$Brier[eval_df$model == "rf_cv01"] <- mean(sq_er) 

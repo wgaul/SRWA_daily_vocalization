@@ -64,7 +64,7 @@ rm(md)
 rm(md_e_saipan)
 rm(jie_srwa)
 
-# Add the start time of song, which is hh:mm:ss since beginning of recording,
+# Add the start time of minute, which is hh:mm:ss since beginning of recording,
 # to the time of day when the recording started.
 srwa$rec_start_time <- srwa$filename
 srwa$rec_start_time <- gsub("SWIFT.._", "", srwa$rec_start_time)
@@ -81,6 +81,8 @@ srwa$time_of_day <- srwa$rec_start_time +
   srwa$second_of_recording
 # drop date
 srwa$time_of_day <- as_hms(srwa$time_of_day)
+# add a column for hour of day
+srwa$hour_of_day <- hour(srwa$time_of_day)
 
 # remove sites with no SRWA detections
 det_points <- data.frame(table(srwa$point_id, srwa$SRWA))
@@ -113,8 +115,6 @@ srwa <- unique(srwa)
 
 # remove a row where there is a missing minute of hour value
 srwa <- srwa[!is.na(srwa$minute_of_hour), ]
-
-# make a variable for season
 
 
 
@@ -161,13 +161,21 @@ for(i in 1:length(flnms)) {
 }
 
 
+### Bin data by hour --------------------------------------------------------
+# function to calculate proportion of minutes with detection
+prop_detected <- function(x) {length(which(x == TRUE)) / length(x)}
+
+srwa_bin <- group_by(srwa, point_id, observer, doy, date_num, filename, 
+                     hour_of_day) %>%
+  summarise(prop_srwa_det = prop_detected(SRWA), n_min_in_group = n(), 
+            n_det = sum(as.numeric(as.logical(as.character(SRWA)))))
+srwa_bin$SRWA_in_hour <- srwa_bin$n_det > 0
+### end bin data by hour ----------------------------------------------------
+
+
+
 ###############
-## Standardized predictions - make standardized data
-# standard_dat <- srwa[, colnames(srwa) %in% 
-#                        c("point_id", "location", "time_of_day_sec", 
-#                          "date_fac", "season", "rain_wind", "observer")]
-# standard_dat$observer <- standard_dat$observer[1]
-#standard_dat <- standard_dat[order(standard_dat$time_of_day_sec), ]
+## Make standardized data for predictions later
 loc_date_df <- srwa[, colnames(srwa) %in% c("point_id", "date_fac", "season")]
 loc_date_df <- unique(loc_date_df)
 
@@ -193,3 +201,25 @@ standard_dat$rain_wind <- srwa$rain_wind[1]
 # drop initial NA row from df
 standard_dat <- standard_dat[which(!is.na(standard_dat$point_id)), ]
 
+
+### make standardized data for models binned by hour
+standard_dat_binned <- data.frame(point_id = NA, time_of_day_sec = NA, 
+                                  doy = NA, hour_of_day = NA, 
+                                  observer = NA)
+
+doys <- seq(from = 0, to = 365, by = 30)
+for(i in 1:nrow(loc_date_df)) {
+  for(j in doys) {
+    # generate a prediction every hour
+    dat <- data.frame(point_id = loc_date_df$point_id[i], 
+                      date_fac = loc_date_df$date_fac[i], 
+                      hour_of_day = seq(from = 0, to = 24), 
+                      doy = j)
+    standard_dat_binned <- bind_rows(standard_dat_binned, dat)
+  }
+}
+standard_dat_binned$observer <- srwa$observer[1] 
+
+# drop initial NA row from df
+standard_dat_binned <- standard_dat_binned[which(!is.na(
+  standard_dat_binned$point_id)), ]

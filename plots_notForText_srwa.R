@@ -46,8 +46,10 @@ ggplot(data = standard_dat_avg_date,
 
 
 
-
-
+# view partial plots for time of day for all location block CV models
+for(i in 1:length(rf_cv01)) {
+  partialPlot(rf_cv01[[i]]$mod, pred.data = data.frame(rf_cv01[[i]]$train_dat[, colnames(rf_cv01[[i]]$train_dat) %in% rf_cv01[[i]]$pred_names]), x.var = time_of_day_sec, which.class = TRUE)
+}
 
 
 
