@@ -38,6 +38,9 @@ source("./clean_data_srwa.R")
 source("./gam_srwa.R")
 source("./rf_srwa.R")
 
+## evaluate models
+source("./evaluate_models_srwa.R")
+
 ## graphs, tables, and numbers for text
 source("./plots_main_text_srwa.R")
 

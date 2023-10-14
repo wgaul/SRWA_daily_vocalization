@@ -4,7 +4,7 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com  & Ellie Roark
 ## created: 13 Aug 2023
-## last modified: 1 Oct 2023
+## last modified: 14 Oct 2023
 ######################
 
 ### plot raw data
@@ -212,10 +212,10 @@ rf_cv01 <- lapply(locs, function(holdout_loc, dat, pred_names, mtry,
     replace = TRUE, classwt = NULL, 
     importance = TRUE, 
     keep.forest = TRUE)
-  test_dat$pred_rw_cv01 <-  predict(
+  test_dat$pred_rf_cv01 <-  predict(
     mod, newdata = test_dat[, colnames(test_dat) %in% pred_names], 
     type = "prob")[, 2]
-  standard_dat$pred_rw_cv01 <- predict(
+  standard_dat$pred_rf_cv01 <- predict(
     mod, 
     newdata = standard_dat[, colnames(standard_dat) %in% pred_names], 
     type = "prob")[, 2]
@@ -225,6 +225,120 @@ rf_cv01 <- lapply(locs, function(holdout_loc, dat, pred_names, mtry,
 }, dat = srwa, pred_names=pred_names, mtry=mtry, standard_dat = standard_dat)
 
 # bind all predictions to test folds together into one df
-rf_cv01_testData <- bind_rows(lapply(rw_cv01, function(x) {x$test_dat}))
+rf_cv01_testData <- bind_rows(lapply(rf_cv01, function(x) {x$test_dat}))
 
 
+## Models for binned data
+# choose predictors
+pred_names <- c("hour_of_day", "observer")
+mtry <- floor(sqrt(length(pred_names)))
+locs <- as.character(unique(srwa$point_id))
+names(locs) <- locs
+
+rf_binCV_01 <- lapply(locs, function(holdout_loc, dat, pred_names, mtry, 
+                                 standard_dat) {
+  train_dat <- dat[as.character(dat$point_id) != holdout_loc, ]
+  test_dat <- dat[as.character(dat$point_id) == holdout_loc, ]
+  mod <- randomForest( 
+    x = train_dat[, which(colnames(train_dat) %in% pred_names)],
+    y = factor(train_dat$SRWA_in_hour),
+    ntree = 1000, 
+    mtry = mtry,   
+    nodesize = 1, 
+    replace = TRUE, classwt = NULL, 
+    importance = TRUE, 
+    keep.forest = TRUE)
+  test_dat$pred_rf_binCV01 <-  predict(
+    mod, newdata = test_dat[, colnames(test_dat) %in% pred_names], 
+    type = "prob")[, 2]
+  standard_dat$pred_rf_binCV01 <- predict(
+    mod, 
+    newdata = standard_dat[, colnames(standard_dat) %in% pred_names], 
+    type = "prob")[, 2]
+  
+  list(mod = mod, train_dat = train_dat, test_dat = test_dat, 
+       pred_names = pred_names, standard_preds = standard_dat)
+}, dat = srwa_bin, pred_names=pred_names, mtry=mtry, 
+standard_dat = standard_dat_binned)
+
+# bind all predictions to test folds together into one df
+rf_binCV_01_testData <- bind_rows(
+  lapply(rf_binCV_01, function(x) {x$test_dat}))
+
+
+# choose predictors for null model
+pred_names <- c("observer")
+mtry <- floor(sqrt(length(pred_names)))
+locs <- as.character(unique(srwa$point_id))
+names(locs) <- locs
+
+rf_binCV_h0 <- lapply(locs, function(holdout_loc, dat, pred_names, mtry, 
+                                     standard_dat) {
+  train_dat <- dat[as.character(dat$point_id) != holdout_loc, ]
+  test_dat <- dat[as.character(dat$point_id) == holdout_loc, ]
+  mod <- randomForest( 
+    x = train_dat[, which(colnames(train_dat) %in% pred_names)],
+    y = factor(train_dat$SRWA_in_hour),
+    ntree = 1000, 
+    mtry = mtry,   
+    nodesize = 1, 
+    replace = TRUE, classwt = NULL, 
+    importance = TRUE, 
+    keep.forest = TRUE)
+  test_dat$pred_rf_binCVh0 <-  predict(
+    mod, newdata = data.frame(test_dat[, colnames(test_dat) %in% pred_names]), 
+    type = "prob")[, 2]
+  standard_dat$pred_rf_binCVh0 <- predict(
+    mod, 
+    newdata = data.frame(tibble(standard_dat)[, colnames(standard_dat) %in% 
+                                        pred_names]), 
+    type = "prob")[, 2]
+  
+  list(mod = mod, train_dat = train_dat, test_dat = test_dat, 
+       pred_names = pred_names, standard_preds = standard_dat)
+}, dat = srwa_bin, pred_names=pred_names, mtry=mtry, 
+standard_dat = standard_dat_binned)
+
+# bind all predictions to test folds together into one df
+rf_binCV_h0_testData <- bind_rows(
+  lapply(rf_binCV_h0, function(x) {x$test_dat}))
+
+
+
+
+## RF predicting number of detections per hour
+# choose predictors
+pred_names <- c("hour_of_day", "observer")
+mtry <- floor(sqrt(length(pred_names)))
+locs <- as.character(unique(srwa$point_id))
+names(locs) <- locs
+
+rf_binCV_02 <- lapply(locs, function(holdout_loc, dat, pred_names, mtry, 
+                                     standard_dat) {
+  train_dat <- dat[as.character(dat$point_id) != holdout_loc, ]
+  test_dat <- dat[as.character(dat$point_id) == holdout_loc, ]
+  mod <- randomForest( 
+    x = train_dat[, which(colnames(train_dat) %in% pred_names)],
+    y = as.numeric(as.character(train_dat$n_det)),
+    ntree = 1000, 
+    mtry = mtry,   
+    nodesize = 1, 
+    replace = TRUE, classwt = NULL, 
+    importance = TRUE, 
+    keep.forest = TRUE)
+  test_dat$pred_rf_binCV02 <-  predict(
+    mod, newdata = test_dat[, colnames(test_dat) %in% pred_names], 
+    type = "response")
+  standard_dat$pred_rf_binCV02 <- predict(
+    mod, 
+    newdata = standard_dat[, colnames(standard_dat) %in% pred_names], 
+    type = "response")
+  
+  list(mod = mod, train_dat = train_dat, test_dat = test_dat, 
+       pred_names = pred_names, standard_preds = standard_dat)
+}, dat = srwa_bin, pred_names=pred_names, mtry=mtry, 
+standard_dat = standard_dat_binned)
+
+# bind all predictions to test folds together into one df
+rf_binCV_02_testData <- bind_rows(
+  lapply(rf_binCV_02, function(x) {x$test_dat}))

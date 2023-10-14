@@ -60,7 +60,7 @@ plot(m_01)
 
 ## Graph RF predictions for location/day combinations
 ## TODO: Re-order the date factor to go in chronological order
-ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_rf, 
+ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_rf_03, 
                                 color = date_fac)) + 
   geom_line(show.legend = c(color = F, line.type = FALSE)) + 
   geom_rug(data = srwa[srwa$SRWA == T, ], 
@@ -124,6 +124,7 @@ ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m01,
   ylab("Probability") + xlab("Time of day (seconds)") + 
   theme_bw()
 
+# m02
 ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m02, 
                                 color = season, line.type = date_fac)) + 
   geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
@@ -140,6 +141,7 @@ ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m02,
   ylab("Probability") + xlab("Time of day (seconds)") + 
   theme_bw()
 
+# m01
 ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m01, 
                                 color = point_id, line.type = date_fac)) + 
   geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
@@ -151,22 +153,42 @@ ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m01,
   ylab("Probability") + xlab("Time of day (seconds)") + 
   theme_bw()
 
-# Graph RF predictions for locations, averaged over all days in each season
-# Actually this is not a good idea, given model support for differences between
-# days.  The average (global smoother) for each season is not going to be a 
-# particularly good prediction.
-# ggplot(data = standard_dat_averaged_over_days, 
-#        aes(x = time_of_day_sec, y = pred_rf, 
-#            color = season)) + 
-#   geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
-#   geom_rug(data = srwa[srwa$SRWA == T, ], 
-#            aes(x = time_of_day_sec, y = as.numeric(SRWA), color = season), 
-#            sides = "t", length = unit(0.1, "npc")) +
-#   facet_wrap(~point_id, ncol = 2) + 
-#   scale_color_viridis_d(name = "Sampling Period", option = "magma", 
-#                         begin = 0.0, end = 0.8) + 
-#   ggtitle("Standardized Predicted v. time of day\nm_01") +
-#   ylab("Probability") + xlab("Time of day (seconds)") + 
-#   theme_bw()
+# Graph RF CV predictions averaged over all days
+rf_binCV_01_testData_summarised <- group_by(rf_binCV_01_testData, observer, 
+                                            hour_of_day) %>%
+  summarise(pred_rf_binCV01 = mean(pred_rf_binCV01), 
+            SRWA_in_hour = mean(SRWA_in_hour))
 
+ggplot(data = rf_binCV_01_testData_summarised,
+       aes(x = hour_of_day, y = pred_rf_binCV01)) +
+  geom_line(aes(color = observer)) + 
+  geom_rug(data = srwa_bin[srwa_bin$SRWA_in_hour > 0, ],
+           aes(x = hour_of_day, y = as.numeric(SRWA_in_hour)),
+           sides = "t", length = unit(0.1, "npc")) +
+  ggtitle("Standardized Predicted v. time of day\nrf_binCV01") +
+  ylab("Probability") + xlab("Time of day (hour)") +
+  theme_bw()
+
+ggplot(data = rf_binCV_01_testData_summarised,
+       aes(x = hour_of_day, y = pred_rf_binCV01)) +
+  geom_line(aes(color = observer)) + 
+  geom_point(
+    aes(x = hour_of_day, y = as.numeric(SRWA_in_hour))) +
+  # scale_color_viridis_d(name = "Location", option = "magma",
+  #                       begin = 0.0, end = 0.8) +
+  ggtitle("Standardized Predicted v. time of day\nrf_binCV01") +
+  ylab("Probability") + xlab("Time of day (hour)") +
+  theme_bw()
+
+### rf_binCV_02
+### graph RF predicting number of detections per hour
+rf_binCV_02_testData_summarised <- group_by(rf_binCV_02_testData, observer, 
+                                            hour_of_day) %>%
+  summarise(pred_rf_binCV02 = mean(pred_rf_binCV02), 
+            n_det = mean(n_det))
+
+ggplot(data = rf_binCV_02_testData_summarised, aes(x = hour_of_day)) + 
+  geom_line(aes(y = pred_rf_binCV02, color = observer)) + 
+  geom_point(aes(y = n_det)) + 
+  theme_bw()
 

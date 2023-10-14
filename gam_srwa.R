@@ -53,8 +53,8 @@ if(fit_gam) {
   write_rds(m_01, "./saved_objects/m_01.rds")
 } else m_01 <- read_rds("./saved_objects/m_01.rds")
 
-gam.check(m_01)
-plot(m_01, pages = 1, all.terms = T)
+try(gam.check(m_01))
+try(plot(m_01, pages = 1, all.terms = T))
 
 # global smoother plus group-level smoothers that have different wiggliness (GI)
 if(fit_gam) {
@@ -69,8 +69,8 @@ if(fit_gam) {
   write_rds(m_02, "./saved_objects/m_02.rds")
 } else m_02 <- read_rds("./saved_objects/m_02.rds")
 
-gam.check(m_02)
-plot(m_02, pages = 1, all.terms = T)
+try(gam.check(m_02))
+try(plot(m_02, pages = 1, all.terms = T))
 
 # global smoother plus group-level smoothers that have the same wiggliness (GS)
 # No season fixed effect
@@ -85,8 +85,8 @@ if(fit_gam) {
             knots = list(time_of_day_sec=c(0, 86400)))
   write_rds(m_03, "./saved_objects/m_03.rds")
 } else m_03 <- read_rds("./saved_objects/m_03.rds")
-gam.check(m_03)
-plot(m_03, pages = 1, all.terms = T)
+try(gam.check(m_03))
+try(plot(m_03, pages = 1, all.terms = T))
 
 
 # global smoother plus group-level smoothers that have different wiggliness (GI)
@@ -101,8 +101,8 @@ if(fit_gam) {
             knots = list(time_of_day_sec=c(0, 86400)))
   write_rds(m_04, "./saved_objects/m_04.rds")
 }  else m_04 <- read_rds("./saved_objects/m_04.rds")
-gam.check(m_04)
-plot(m_04, pages = 1, all.terms = T)
+try(gam.check(m_04))
+try(plot(m_04, pages = 1, all.terms = T))
 
 # global smoother plus group-level smoothers
 # Both point and Day are interaction terms (groups)
