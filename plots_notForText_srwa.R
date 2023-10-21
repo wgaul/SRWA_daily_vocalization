@@ -53,6 +53,119 @@ for(i in 1:length(rf_cv01)) {
 
 
 
+### rf_binCV_02
+### graph RF predicting number of detections per hour
+rf_binCV_02_testData_summarised <- group_by(rf_binCV_02_testData, observer, 
+                                            hour_of_day) %>%
+  summarise(pred_rf_binCV02 = mean(pred_rf_binCV02), 
+            n_det = mean(n_det))
+
+ggplot(data = rf_binCV_02_testData_summarised, aes(x = hour_of_day)) + 
+  geom_line(aes(y = pred_rf_binCV02, color = observer)) + 
+  geom_point(aes(y = n_det)) + 
+  theme_bw()
+
+## Graph RF predictions for location/day combinations
+## TODO: Re-order the date factor to go in chronological order
+ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_rf_03, 
+                                color = date_fac)) + 
+  geom_line(show.legend = c(color = F, line.type = FALSE)) + 
+  geom_rug(data = srwa[srwa$SRWA == T, ], 
+           aes(x = time_of_day_sec, y = as.numeric(SRWA)), 
+           sides = "t", length = unit(0.1, "npc")) +
+  facet_wrap(~point_id, ncol = 2) + 
+  scale_color_viridis_d(name = "Sampling Period", option = "magma", 
+                        begin = 0.0, end = 0.8) + 
+  ggtitle("Standardized Predicted v. time of day\nm_01") +
+  ylab("Probability") + xlab("Time of day (seconds)") + 
+  theme_bw()
+
+
+## Graph GAM predictions for location/day combinations 
+ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m06, 
+                                color = season, line.type = date_fac)) + 
+  geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
+  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
+  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
+  #                color = season), size = 0.8, height = 0.05) + 
+  geom_rug(data = srwa[srwa$SRWA == T, ], 
+           aes(x = time_of_day_sec, y = as.numeric(SRWA), color = season), 
+           sides = "t", length = unit(0.1, "npc")) +
+  facet_wrap(~point_id, ncol = 2) + 
+  scale_color_viridis_d(name = "Sampling Period", option = "magma", 
+                        begin = 0.0, end = 0.8) + 
+  ggtitle("Standardized Predicted v. time of day\nm_06") +
+  ylab("Probability") + xlab("Time of day (seconds)") + 
+  theme_bw()
+
+ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m06, 
+                                color = date_fac)) + 
+  geom_line(show.legend = c(color = F, line.type = FALSE)) + 
+  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
+  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
+  #                color = season), size = 0.8, height = 0.05) + 
+  geom_rug(data = srwa[srwa$SRWA == T, ], 
+           aes(x = time_of_day_sec, y = as.numeric(SRWA), color = date_fac), 
+           sides = "t", length = unit(0.1, "npc")) +
+  facet_wrap(~point_id, ncol = 2) + 
+  scale_color_viridis_d(option = "magma", 
+                        begin = 0.0, end = 0.8) + 
+  ggtitle("Standardized Predicted v. time of day\nm_06") +
+  ylab("Probability") + xlab("Time of day (seconds)") + 
+  theme_bw()
+
+# m_01
+ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m01, 
+                                color = season, line.type = date_fac)) + 
+  geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
+  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
+  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
+  #                color = season), size = 0.8, height = 0.05) + 
+  geom_rug(data = srwa[srwa$SRWA == T, ], 
+           aes(x = time_of_day_sec, y = as.numeric(SRWA), color = season), 
+           sides = "t", length = unit(0.1, "npc")) +
+  facet_wrap(~point_id, ncol = 2) + 
+  scale_color_viridis_d(name = "Sampling Period", option = "magma", 
+                        begin = 0.0, end = 0.8) + 
+  ggtitle("Standardized Predicted v. time of day\nm_01") +
+  ylab("Probability") + xlab("Time of day (seconds)") + 
+  theme_bw()
+
+# m02
+ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m02, 
+                                color = season, line.type = date_fac)) + 
+  geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
+  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
+  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
+  #                color = season), size = 0.8, height = 0.05) + 
+  geom_rug(data = srwa[srwa$SRWA == T, ], 
+           aes(x = time_of_day_sec, y = as.numeric(SRWA), color = season), 
+           sides = "t", length = unit(0.1, "npc")) +
+  facet_wrap(~point_id, ncol = 2) + 
+  scale_color_viridis_d(name = "Sampling Period", option = "magma", 
+                        begin = 0.0, end = 0.8) + 
+  ggtitle("Standardized Predicted v. time of day\nm_02\nGroupsHaveDifferentWiggliness") +
+  ylab("Probability") + xlab("Time of day (seconds)") + 
+  theme_bw()
+
+# m01
+ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m01, 
+                                color = point_id, line.type = date_fac)) + 
+  geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
+  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
+  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
+  #                color = season), size = 0.8, height = 0.05) + 
+  facet_wrap(~season, ncol = 2) + 
+  ggtitle("Standardized Predicted v. time of day\nm_01") +
+  ylab("Probability") + xlab("Time of day (seconds)") + 
+  theme_bw()
+
+
+
+
+
+
+
 ###### old graphs
 # vocalization detected or not by time of day
 # geom_smooth (not GAM model)

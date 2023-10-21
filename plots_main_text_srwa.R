@@ -58,100 +58,37 @@ plot(m_01)
 # fixed_effects_m_01
 # smooth_terms_m_01
 
-## Graph RF predictions for location/day combinations
-## TODO: Re-order the date factor to go in chronological order
-ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_rf_03, 
-                                color = date_fac)) + 
-  geom_line(show.legend = c(color = F, line.type = FALSE)) + 
-  geom_rug(data = srwa[srwa$SRWA == T, ], 
-           aes(x = time_of_day_sec, y = as.numeric(SRWA)), 
+
+### bootstrap graphs -------------
+# Graph bootstrapped RF CV predictions averaged over all days
+rf_boot_binCV_01_testData_summarised <- bind_rows(
+  lapply(rf_boot_bin_cv01, function(x) x$preds_test_data))
+
+rf_boot_binCV_01_testData_summarised <- group_by(
+  rf_boot_binCV_01_testData_summarised, hour_of_day) %>%
+  summarise(pred_rf_binCV01_mean = mean(pred_rf_binCV01), 
+            SRWA_in_hour = mean(SRWA_in_hour), 
+            up_95_ci = as.numeric(quantile(pred_rf_binCV01, probs = 0.95)), 
+            low_95_ci = as.numeric(quantile(pred_rf_binCV01, probs = 0.05)))
+
+ggplot(data = rf_boot_binCV_01_testData_summarised,
+       aes(x = hour_of_day)) +
+  geom_line(aes(y = pred_rf_binCV01_mean)) + 
+  geom_line(linetype = "dotted", aes(y = up_95_ci)) + 
+  geom_line(linetype = "dotted", aes(y = low_95_ci)) + 
+  geom_rug(data = srwa_bin[srwa_bin$SRWA_in_hour > 0, ],
+           aes(x = hour_of_day, y = as.numeric(SRWA_in_hour)),
            sides = "t", length = unit(0.1, "npc")) +
-  facet_wrap(~point_id, ncol = 2) + 
-  scale_color_viridis_d(name = "Sampling Period", option = "magma", 
-                        begin = 0.0, end = 0.8) + 
-  ggtitle("Standardized Predicted v. time of day\nm_01") +
-  ylab("Probability") + xlab("Time of day (seconds)") + 
+  ggtitle("Predicted probability of detecting a SRWA\nin an hour\nif you listen to four minutes from that hour\nrf_binCV01 bootstrapped") +
+  ylab("Probability") + xlab("Time of day (hour)") +
   theme_bw()
 
 
-## Graph GAM predictions for location/day combinations 
-ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m06, 
-                                color = season, line.type = date_fac)) + 
-  geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
-  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
-  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
-  #                color = season), size = 0.8, height = 0.05) + 
-  geom_rug(data = srwa[srwa$SRWA == T, ], 
-           aes(x = time_of_day_sec, y = as.numeric(SRWA), color = season), 
-           sides = "t", length = unit(0.1, "npc")) +
-  facet_wrap(~point_id, ncol = 2) + 
-  scale_color_viridis_d(name = "Sampling Period", option = "magma", 
-                        begin = 0.0, end = 0.8) + 
-  ggtitle("Standardized Predicted v. time of day\nm_06") +
-  ylab("Probability") + xlab("Time of day (seconds)") + 
-  theme_bw()
+### end bootstrap graphs ---------
 
-ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m06, 
-                                color = date_fac)) + 
-  geom_line(show.legend = c(color = F, line.type = FALSE)) + 
-  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
-  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
-  #                color = season), size = 0.8, height = 0.05) + 
-  geom_rug(data = srwa[srwa$SRWA == T, ], 
-           aes(x = time_of_day_sec, y = as.numeric(SRWA), color = date_fac), 
-           sides = "t", length = unit(0.1, "npc")) +
-  facet_wrap(~point_id, ncol = 2) + 
-  scale_color_viridis_d(option = "magma", 
-                        begin = 0.0, end = 0.8) + 
-  ggtitle("Standardized Predicted v. time of day\nm_06") +
-  ylab("Probability") + xlab("Time of day (seconds)") + 
-  theme_bw()
 
-# m_01
-ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m01, 
-                                color = season, line.type = date_fac)) + 
-  geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
-  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
-  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
-  #                color = season), size = 0.8, height = 0.05) + 
-  geom_rug(data = srwa[srwa$SRWA == T, ], 
-           aes(x = time_of_day_sec, y = as.numeric(SRWA), color = season), 
-           sides = "t", length = unit(0.1, "npc")) +
-  facet_wrap(~point_id, ncol = 2) + 
-  scale_color_viridis_d(name = "Sampling Period", option = "magma", 
-                        begin = 0.0, end = 0.8) + 
-  ggtitle("Standardized Predicted v. time of day\nm_01") +
-  ylab("Probability") + xlab("Time of day (seconds)") + 
-  theme_bw()
 
-# m02
-ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m02, 
-                                color = season, line.type = date_fac)) + 
-  geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
-  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
-  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
-  #                color = season), size = 0.8, height = 0.05) + 
-  geom_rug(data = srwa[srwa$SRWA == T, ], 
-           aes(x = time_of_day_sec, y = as.numeric(SRWA), color = season), 
-           sides = "t", length = unit(0.1, "npc")) +
-  facet_wrap(~point_id, ncol = 2) + 
-  scale_color_viridis_d(name = "Sampling Period", option = "magma", 
-                        begin = 0.0, end = 0.8) + 
-  ggtitle("Standardized Predicted v. time of day\nm_02\nGroupsHaveDifferentWiggliness") +
-  ylab("Probability") + xlab("Time of day (seconds)") + 
-  theme_bw()
 
-# m01
-ggplot(data = standard_dat, aes(x = time_of_day_sec, y = pred_m01, 
-                                color = point_id, line.type = date_fac)) + 
-  geom_line(show.legend = c(color = TRUE, line.type = FALSE)) + 
-  # geom_jitter(data = srwa[srwa$SRWA == T, ], 
-  #            aes(x = time_of_day_sec, y = as.numeric(SRWA), 
-  #                color = season), size = 0.8, height = 0.05) + 
-  facet_wrap(~season, ncol = 2) + 
-  ggtitle("Standardized Predicted v. time of day\nm_01") +
-  ylab("Probability") + xlab("Time of day (seconds)") + 
-  theme_bw()
 
 # Graph RF CV predictions averaged over all days
 rf_binCV_01_testData_summarised <- group_by(rf_binCV_01_testData, observer, 
@@ -180,15 +117,4 @@ ggplot(data = rf_binCV_01_testData_summarised,
   ylab("Probability") + xlab("Time of day (hour)") +
   theme_bw()
 
-### rf_binCV_02
-### graph RF predicting number of detections per hour
-rf_binCV_02_testData_summarised <- group_by(rf_binCV_02_testData, observer, 
-                                            hour_of_day) %>%
-  summarise(pred_rf_binCV02 = mean(pred_rf_binCV02), 
-            n_det = mean(n_det))
-
-ggplot(data = rf_binCV_02_testData_summarised, aes(x = hour_of_day)) + 
-  geom_line(aes(y = pred_rf_binCV02, color = observer)) + 
-  geom_point(aes(y = n_det)) + 
-  theme_bw()
 
