@@ -336,3 +336,6 @@ ob <- as.numeric(as.logical(as.character(rf_cv01_testData$SRWA)))
 sq_er <- (pr - ob)^2
 # mean squared error (Brier score)
 eval_df$Brier[eval_df$model == "rf_cv01"] <- mean(sq_er) 
+
+
+eval_df

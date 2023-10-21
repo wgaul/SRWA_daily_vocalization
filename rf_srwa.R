@@ -230,7 +230,7 @@ rf_cv01_testData <- bind_rows(lapply(rf_cv01, function(x) {x$test_dat}))
 
 ## Models for binned data
 # choose predictors
-pred_names <- c("hour_of_day", "observer")
+pred_names <- c("hour_of_day", "observer", "n_min_in_group")
 mtry <- floor(sqrt(length(pred_names)))
 locs <- as.character(unique(srwa$point_id))
 names(locs) <- locs
@@ -267,7 +267,7 @@ rf_binCV_01_testData <- bind_rows(
 
 
 # choose predictors for null model
-pred_names <- c("observer")
+pred_names <- c("observer", "n_min_in_group")
 mtry <- floor(sqrt(length(pred_names)))
 locs <- as.character(unique(srwa$point_id))
 names(locs) <- locs
@@ -308,7 +308,7 @@ rf_binCV_h0_testData <- bind_rows(
 
 ## RF predicting number of detections per hour
 # choose predictors
-pred_names <- c("hour_of_day", "observer")
+pred_names <- c("hour_of_day", "observer", "n_min_in_group")
 mtry <- floor(sqrt(length(pred_names)))
 locs <- as.character(unique(srwa$point_id))
 names(locs) <- locs

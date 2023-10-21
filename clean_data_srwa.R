@@ -205,7 +205,7 @@ standard_dat <- standard_dat[which(!is.na(standard_dat$point_id)), ]
 ### make standardized data for models binned by hour
 standard_dat_binned <- data.frame(point_id = NA, time_of_day_sec = NA, 
                                   doy = NA, hour_of_day = NA, 
-                                  observer = NA)
+                                  observer = NA, n_min_in_group = NA)
 
 doys <- seq(from = 0, to = 365, by = 30)
 for(i in 1:nrow(loc_date_df)) {
@@ -214,7 +214,7 @@ for(i in 1:nrow(loc_date_df)) {
     dat <- data.frame(point_id = loc_date_df$point_id[i], 
                       date_fac = loc_date_df$date_fac[i], 
                       hour_of_day = seq(from = 0, to = 24), 
-                      doy = j)
+                      doy = j, n_min_in_group = 4)
     standard_dat_binned <- bind_rows(standard_dat_binned, dat)
   }
 }

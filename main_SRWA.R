@@ -35,7 +35,8 @@ if(check_student_data) {
 source("./clean_data_srwa.R")
 
 ## fit models
-source("./gam_srwa.R")
+source("./gam_raw_data_srwa.R")
+source("./gam_binned_data_srwa.R")
 source("./rf_srwa.R")
 
 ## evaluate models
