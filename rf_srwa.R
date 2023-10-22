@@ -6,7 +6,7 @@
 ## created: 13 Aug 2023
 ## last modified: 21 Oct 2023
 ######################
-set.seed(211020231354)
+set.seed(seed = 21102023)
 
 ### plot raw data
 ggplot(data = srwa, aes(x = time_of_day, y = as.numeric(SRWA), 
@@ -187,10 +187,10 @@ rf_boot_bin_cvh0 <- lapply(
         replace = TRUE, classwt = NULL, 
         importance = TRUE, 
         keep.forest = TRUE)
-      test_dat$pred_rf_binCV01 <-  predict(
+      test_dat$pred_rf_binCVh0 <-  predict(
         mod, newdata = test_dat[, colnames(test_dat) %in% pred_names], 
         type = "prob")[, 2]
-      standard_dat$pred_rf_binCV01 <- predict(
+      standard_dat$pred_rf_binCVh0 <- predict(
         mod, 
         newdata = standard_dat[, colnames(standard_dat) %in% pred_names], 
         type = "prob")[, 2]
@@ -212,7 +212,6 @@ rf_boot_bin_cvh0 <- lapply(
          preds_standard_data = preds_standard_data)
   }, pred_names = pred_names_h0, mtry = mtry, locs = locs, 
   standard_dat_binned = standard_dat_binned)
-
 #### end bootstrapping ----------------------
 
 
@@ -221,7 +220,7 @@ rf_boot_bin_cvh0 <- lapply(
 
 
 
-## Do not use tmodels below here ------------------
+## Do not use the models below here ------------------
 ## No advantage over other models.
 
 ## Model with no location

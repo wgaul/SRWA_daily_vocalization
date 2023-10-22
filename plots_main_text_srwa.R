@@ -4,13 +4,10 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com  & Ellie Roark
 ## created: 4 Aug 2023
-## last modified: 19 Aug 2023
+## last modified: 22 Oct 2023
 ######################
 
 srwa <- group_by(srwa, point_id)
-
-
-
 
 
 ## Numbers for text
@@ -33,6 +30,9 @@ table(loc_period_comb$Var1, loc_period_comb$Var2)
 # N minutes analyzed
 dim(srwa)
 
+# N hours analyzed
+dim(srwa_bin)
+
 # N minutes analyzed by multiple observers
 str(combined_dat_wide)
 nrow(combined_dat_wide)
@@ -40,23 +40,11 @@ nrow(combined_dat_wide)
 krp # look at Krippendorf's alpha
 
 # overall model performance
-
+eval_df_ci
 
 ## Table of model outputs
-var_imp_rf_01
-
-aic_m06
-anova(m_06)
-
-aic_m01
-anova(m_01)
-plot(m_01)
-
-# summary_m_01 <- summary(m_01)
-# fixed_effects_m_01 <- summary_m_01$p.table
-# smooth_terms_m_01 <- summary_m_01$s.table
-# fixed_effects_m_01
-# smooth_terms_m_01
+# var_imp_rf_01
+# TODO for chosen CV model
 
 
 ### bootstrap graphs -------------
@@ -74,15 +62,14 @@ rf_boot_binCV_01_testData_summarised <- group_by(
 ggplot(data = rf_boot_binCV_01_testData_summarised,
        aes(x = hour_of_day)) +
   geom_line(aes(y = pred_rf_binCV01_mean)) + 
-  geom_line(linetype = "dotted", aes(y = up_95_ci)) + 
-  geom_line(linetype = "dotted", aes(y = low_95_ci)) + 
-  geom_rug(data = srwa_bin[srwa_bin$SRWA_in_hour > 0, ],
-           aes(x = hour_of_day, y = as.numeric(SRWA_in_hour)),
-           sides = "t", length = unit(0.1, "npc")) +
+  geom_line(linetype = "dotted", aes(y = up_95_ci), size = 1) + 
+  geom_line(linetype = "dotted", aes(y = low_95_ci), size = 1) + 
+  geom_jitter(data = srwa_bin, 
+             aes(x = hour_of_day, y = as.numeric(SRWA_in_hour)), 
+             height = 0.01, alpha = 0.1, size = 0.5) + 
   ggtitle("Predicted probability of detecting a SRWA\nin an hour\nif you listen to four minutes from that hour\nrf_binCV01 bootstrapped") +
   ylab("Probability") + xlab("Time of day (hour)") +
   theme_bw()
-
 
 ### end bootstrap graphs ---------
 
