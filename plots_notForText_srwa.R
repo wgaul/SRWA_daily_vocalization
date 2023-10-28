@@ -7,6 +7,36 @@
 ## last modified: 1 Oct. 2023
 ######################
 
+# Graph RF CV predictions averaged over all days
+rf_binCV_01_testData_summarised <- group_by(rf_binCV_01_testData, observer, 
+                                            hour_of_day) %>%
+  summarise(pred_rf_binCV01 = mean(pred_rf_binCV01), 
+            SRWA_in_hour = mean(SRWA_in_hour))
+
+ggplot(data = rf_binCV_01_testData_summarised,
+       aes(x = hour_of_day, y = pred_rf_binCV01)) +
+  geom_line(aes(color = observer)) + 
+  geom_rug(data = srwa_bin[srwa_bin$SRWA_in_hour > 0, ],
+           aes(x = hour_of_day, y = as.numeric(SRWA_in_hour)),
+           sides = "t", length = unit(0.1, "npc")) +
+  ggtitle("Standardized Predicted v. time of day\nrf_binCV01") +
+  ylab("Probability") + xlab("Time of day (hour)") +
+  theme_bw()
+
+ggplot(data = rf_binCV_01_testData_summarised,
+       aes(x = hour_of_day, y = pred_rf_binCV01)) +
+  geom_line(aes(color = observer)) + 
+  geom_point(
+    aes(x = hour_of_day, y = as.numeric(SRWA_in_hour))) +
+  # scale_color_viridis_d(name = "Location", option = "magma",
+  #                       begin = 0.0, end = 0.8) +
+  ggtitle("Standardized Predicted v. time of day\nrf_binCV01") +
+  ylab("Probability") + xlab("Time of day (hour)") +
+  theme_bw()
+
+
+
+
 # average prediction over the entire year
 standard_dat_avg_date <- group_by(standard_dat, point_id, time_of_day_sec) %>%
   summarise(pred_rf_01 = mean(pred_rf_01), pred_rf_02 = mean(pred_rf_02))

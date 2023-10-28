@@ -4,7 +4,7 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com  & Ellie Roark
 ## created: 1 Oct 2023
-## last modified: 22 Oct 2023
+## last modified: 28 Oct 2023
 ######################
 library(pROC)
 library(psych)
@@ -40,10 +40,11 @@ eval_df <- data.frame(model = c("rf_01", "rf_02", "rf_03", "rf_04", "rf_cv01",
                       FNR = NA, Brier = NA)
 
 # data frame to hold bootstrap metric estimates and confidence intervals
-eval_df_ci <- tibble(model = rep(c("rf_boot_bin_cv01", "rf_boot_bin_cvh0"), 7), 
-                         metric = rep(c("AUC", "Kappa", "TPR", "FPR", "TNR", 
-                                    "FNR", "Brier"), 2), 
-                         mean = NA, ci_upper_95 = NA, ci_lower_05 = NA) 
+eval_df_ci <- tibble(
+  model = rep(c("rf_boot_bin_cv01", "rf_boot_bin_cvh0"), 7), 
+  metric = rep(c("AUC", "Kappa", "TPR", "FPR", "TNR", 
+                 "FNR", "Brier"), 2), 
+  mean = NA, ci_upper_95 = NA, ci_lower_05 = NA) 
 eval_df_ci <- eval_df_ci[order(eval_df_ci$model, eval_df_ci$metric), ]
 
 #### Performance for bootstrap fits, chosen and null models -------------------
@@ -106,8 +107,8 @@ rf_boot_bin_cv01_eval_df$model <- "rf_boot_bin_cv01"
 rf_boot_bin_cv01_eval_df <- pivot_longer(rf_boot_bin_cv01_eval_df, 
                                          AUC:Brier) %>% 
   group_by(model, name) %>%
-  summarise(mean = mean(value), lower_05_ci = quantile(value, probs = 0.05), 
-            upper_95_ci = quantile(value, probs = 0.95))
+  summarise(mean = mean(value), lower_05_ci = quantile(value, probs = 0.025), 
+            upper_95_ci = quantile(value, probs = 0.975))
 ####---------  end performance metrics for chosen model
 
 
@@ -170,8 +171,8 @@ rf_boot_bin_cvh0_eval_df$model <- "rf_boot_bin_cvh0"
 rf_boot_bin_cvh0_eval_df <- pivot_longer(rf_boot_bin_cvh0_eval_df, 
                                          AUC:Brier) %>% 
   group_by(model, name) %>%
-  summarise(mean = mean(value), lower_05_ci = quantile(value, probs = 0.05), 
-            upper_95_ci = quantile(value, probs = 0.95))
+  summarise(mean = mean(value), lower_05_ci = quantile(value, probs = 0.025), 
+            upper_95_ci = quantile(value, probs = 0.975))
 
 eval_df_ci <- bind_rows(rf_boot_bin_cv01_eval_df, rf_boot_bin_cvh0_eval_df)
 ####------  end bootstrap performance for null model --------

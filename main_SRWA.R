@@ -5,7 +5,7 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com
 ## created: 23 July 2022
-## last modified: 26 Aug 2023
+## last modified: 28 Oct 2023
 ######################
 
 warning("Set working directory to source file location.")
@@ -26,6 +26,7 @@ check_student_data <- FALSE # compare students' data for trustworthiness?
 # objects
 fit_gam <- FALSE
 fit_rf <- TRUE
+refit_rf_models <- TRUE
 
 if(check_student_data) {
   source("compare_students_data_SRWA.R")
@@ -41,6 +42,7 @@ if(fit_rf) source("./rf_srwa.R")
 
 ## evaluate models
 source("./evaluate_models_srwa.R")
+eval_df_ci
 
 ## graphs, tables, and numbers for text
 source("./plots_main_text_srwa.R")
