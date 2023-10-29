@@ -26,7 +26,7 @@ check_student_data <- FALSE # compare students' data for trustworthiness?
 # objects
 fit_gam <- FALSE
 fit_rf <- TRUE
-refit_rf_models <- TRUE
+refit_rf_models <- FALSE
 
 if(check_student_data) {
   source("compare_students_data_SRWA.R")

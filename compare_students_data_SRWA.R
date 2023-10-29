@@ -73,8 +73,8 @@ krp <- kripp.alpha(student_matrix, method = "nominal")
 
 length(which(alex_dat$SRWA == TRUE)) / nrow(alex_dat) # prob. of smallest class
 length(which(jie_dat$SRWA == TRUE)) / nrow(jie_dat) # prob of smallest class
-# it seems SRWA song prevalence is about 0.25 to 0.3, so sample size needed to
-# estimate Krippendorf's alpha is around 50.  So I have enough.
+# it seems SRWA song prevalence is about 0.15, so sample size needed to
+# estimate Krippendorf's alpha is around 84.  So I have enough.
 
 krp # look at Krippendorf's alpha
 
