@@ -3,13 +3,16 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com   & Ellie Roark
 ## created: 28 Oct 2022
-## last modified: 8 July 2023
+## last modified: 21 Jan 2024
 ######################
 
 if(!on_cloud) {
   srwa <- read.csv("../data/Reed_Warbler_detections_8July2023.csv")
   jie_srwa <- read_csv("../data/Reed_Warbler_detections_Jie_8July2023.csv", 
                        na = c("NA", "N/A", ""))
+  ebird_srwa <- read.delim(
+    "../data/ebd_sairew1_smp_relJul-2023/ebd_sairew1_smp_relJul-2023.txt",
+    header = T, sep = "\t")
 }
 if(on_cloud) {
   srwa <- read.csv("Reed_Warbler_detections_8July2023.csv")
@@ -223,3 +226,4 @@ standard_dat_binned$observer <- srwa$observer[1]
 # drop initial NA row from df
 standard_dat_binned <- standard_dat_binned[which(!is.na(
   standard_dat_binned$point_id)), ]
+

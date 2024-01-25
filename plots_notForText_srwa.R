@@ -205,3 +205,37 @@ ggplot(data = srwa, aes(x = time_of_day, y = as.numeric(SRWA))) +
   facet_wrap(~point_id, ncol = 2) + 
   theme_bw() +
   ggtitle("Geom smooth\nNot GAM")
+
+
+for(i in unique(srwa$point_id)) {
+  print(i)
+  print("summer")
+  print(srwa$time_of_day[srwa$point_id == i & srwa$season == "summer" & 
+                           srwa$SRWA == TRUE][which(
+    srwa$time_of_day[srwa$point_id == i & srwa$season == "summer" & 
+                       srwa$SRWA == TRUE] == 
+          min(srwa$time_of_day[srwa$point_id == i & srwa$season == "summer" & 
+                                 srwa$SRWA == TRUE]))])
+  
+  print(srwa$time_of_day[srwa$point_id == i & srwa$season == "summer" & 
+                           srwa$SRWA == TRUE][which(
+    srwa$time_of_day[srwa$point_id == i & srwa$season == "summer" & 
+                       srwa$SRWA == TRUE] == 
+      max(srwa$time_of_day[srwa$point_id == i & srwa$season == "summer" & 
+                             srwa$SRWA == TRUE]))])
+  
+  print("winter")
+  print(srwa$time_of_day[srwa$point_id == i & srwa$season == "winter" & 
+                           srwa$SRWA == TRUE][which(
+    srwa$time_of_day[srwa$point_id == i & srwa$season == "winter" & 
+                       srwa$SRWA == TRUE] == 
+      min(srwa$time_of_day[srwa$point_id == i & srwa$season == "winter" & 
+                             srwa$SRWA == TRUE]))])
+  
+  print(srwa$time_of_day[srwa$point_id == i & srwa$season == "winter" & 
+                           srwa$SRWA == TRUE][which(
+    srwa$time_of_day[srwa$point_id == i & srwa$season == "winter" & 
+                       srwa$SRWA == TRUE] == 
+      max(srwa$time_of_day[srwa$point_id == i & srwa$season == "winter" & 
+                             srwa$SRWA == TRUE]))])
+}

@@ -25,8 +25,9 @@ check_student_data <- FALSE # compare students' data for trustworthiness?
 # fit gams?  Takes time.  If FALSE, will try to load fitted models from saved 
 # objects
 fit_gam <- FALSE
-fit_rf <- TRUE
-refit_rf_models <- FALSE
+fit_rf <- TRUE # run the rf_srwaw.R script?
+# fit rf models?  If false, model results will be loaded from saved objects
+refit_rf_models <- FALSE 
 
 if(check_student_data) {
   source("compare_students_data_SRWA.R")

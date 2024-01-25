@@ -61,14 +61,22 @@ quantile(srwa$time_of_day[srwa$SRWA == TRUE], probs = c(0.025, 0.975))
 table(srwa$hour_of_day[srwa$SRWA == T])
 
 # N minutes analyzed by multiple observers
-str(combined_dat_wide)
-nrow(combined_dat_wide)
+try(str(combined_dat_wide))
+try(nrow(combined_dat_wide))
 
-krp # look at Krippendorf's alpha
+try(krp) # look at Krippendorf's alpha
 
 # overall model performance
 eval_df_ci
 
+### eBird data for dates of singing detections
+ebird_sing <- ebird_srwa[ebird_srwa$BREEDING.CODE %in% c("S ", "S7") | 
+                           ebird_srwa$BEHAVIOR.CODE %in% c("S ", "S7") | 
+                           grepl(".*sing.*", ebird_srwa$SPECIES.COMMENTS), ]
+ebird_sing[which(grepl(".*sing.*", ebird_sing$SPECIES.COMMENTS)), ]
+ebird_sing$month <- gsub("^....-", "", ebird_sing$OBSERVATION.DATE)
+ebird_sing$month <- gsub("-..$", "", ebird_sing$month)
+table(ebird_sing$month)
 
 ### bootstrap graphs -------------
 # Graph bootstrapped RF CV predictions averaged over all days
@@ -101,6 +109,16 @@ daily_pattern_plot
 
 ### end bootstrap graphs ---------
 
+
+# vocalization detected or not by time of day
+# geom_smooth (not GAM model)
+ggplot(data = srwa, aes(x = time_of_day, y = as.numeric(SRWA))) + 
+  geom_jitter(aes(color = season), 
+              height = 0.05, width = 0.4, alpha = 0.8, size = 0.1*t_size) + 
+  # scale_shape_manual(values = c("summer" = 1, "winter" = 4)) + 
+  facet_wrap(~point_id, ncol = 2) + 
+  geom_vline(xintercept = as.hms("12:00:00")) + 
+  theme_bw() 
 
 ### Save plots ---------------------------------------------
 ## save as jpg
