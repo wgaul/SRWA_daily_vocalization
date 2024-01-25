@@ -100,7 +100,7 @@ daily_pattern_plot <- ggplot(data = rf_boot_binCV_01_testData_summarised,
             size = 0.07*t_size, alpha = 2) + 
   geom_jitter(data = srwa_bin, 
               aes(x = hour_of_day, y = as.numeric(SRWA_in_hour)), 
-              height = 0.01, width = 0.4, alpha = 0.08, size = 0.1*t_size) + 
+              height = 0.01, width = 0.4, alpha = 0.1, size = 0.1*t_size) + 
   # ggtitle("Predicted probability of detecting a SRWA\nin an hour\nif you listen to four minutes from that hour\nrf_binCV01 bootstrapped") +
   ylab("Probability") + xlab("Time of day (hour)") +
   # xlim(-0.01, 24.1) + # go left of 0 to allow for jittered points
