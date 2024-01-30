@@ -70,13 +70,13 @@ try(krp) # look at Krippendorf's alpha
 eval_df_ci
 
 ### eBird data for dates of singing detections
-ebird_sing <- ebird_srwa[ebird_srwa$BREEDING.CODE %in% c("S ", "S7") | 
+ebird_sing <- try(ebird_srwa[ebird_srwa$BREEDING.CODE %in% c("S ", "S7") | 
                            ebird_srwa$BEHAVIOR.CODE %in% c("S ", "S7") | 
-                           grepl(".*sing.*", ebird_srwa$SPECIES.COMMENTS), ]
-ebird_sing[which(grepl(".*sing.*", ebird_sing$SPECIES.COMMENTS)), ]
-ebird_sing$month <- gsub("^....-", "", ebird_sing$OBSERVATION.DATE)
-ebird_sing$month <- gsub("-..$", "", ebird_sing$month)
-table(ebird_sing$month)
+                           grepl(".*sing.*", ebird_srwa$SPECIES.COMMENTS), ])
+try(ebird_sing[which(grepl(".*sing.*", ebird_sing$SPECIES.COMMENTS)), ])
+try(ebird_sing$month <- gsub("^....-", "", ebird_sing$OBSERVATION.DATE))
+try(ebird_sing$month <- gsub("-..$", "", ebird_sing$month))
+try(table(ebird_sing$month))
 
 ### bootstrap graphs -------------
 # Graph bootstrapped RF CV predictions averaged over all days

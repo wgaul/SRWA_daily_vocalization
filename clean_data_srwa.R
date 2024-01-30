@@ -3,13 +3,27 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com   & Ellie Roark
 ## created: 28 Oct 2022
-## last modified: 21 Jan 2024
+## last modified: 30 Jan 2024
 ######################
 
-if(!on_cloud) {
+if(data_in_wd) {
+  srwa <- read.csv("Reed_Warbler_detections_8July2023.csv")
+  jie_srwa <- read_csv("Reed_Warbler_detections_Jie_8July2023.csv", 
+                       na = c("NA", "N/A", ""))
+  alex_dat <- read_csv("Reed_Warbler_detections_Alex_21April2023.csv", 
+                       na = c("NA", "N/A", ""))
+  jie_dat <- read_csv("Reed_Warbler_detections_Jie_8July2023.csv", 
+                      na = c("NA", "N/A", ""))
+  ebird_srwa <- NA
+}
+if(on_wglaptop) {
   srwa <- read.csv("../data/Reed_Warbler_detections_8July2023.csv")
   jie_srwa <- read_csv("../data/Reed_Warbler_detections_Jie_8July2023.csv", 
                        na = c("NA", "N/A", ""))
+  alex_dat <- read_csv("../data/Reed_Warbler_detections_Alex_21April2023.csv", 
+                       na = c("NA", "N/A", ""))
+  jie_dat <- read_csv("../data/Reed_Warbler_detections_Jie_8July2023.csv", 
+                      na = c("NA", "N/A", ""))
   ebird_srwa <- read.delim(
     "../data/ebd_sairew1_smp_relJul-2023/ebd_sairew1_smp_relJul-2023.txt",
     header = T, sep = "\t")

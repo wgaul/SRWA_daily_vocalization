@@ -8,11 +8,6 @@
 ## last modified: 8 July 2023
 ######################
 
-alex_dat <- read_csv("../data/Reed_Warbler_detections_Alex_21April2023.csv", 
-                     na = c("NA", "N/A", ""))
-jie_dat <- read_csv("../data/Reed_Warbler_detections_Jie_8July2023.csv", 
-                    na = c("NA", "N/A", ""))
-
 alex_dat <- alex_dat[!is.na(alex_dat$SRWA), ]
 alex_dat$observer <- "AT"
 
@@ -88,4 +83,5 @@ combined_dat_wide[combined_dat_wide$agree == FALSE, ]
 # 12 SWIFT01_20230118_060007  hour 1  minute 49 (Jie wrong)
 #  SWIFT01_20230118_060007  hour 0  minute 45  (difficult, maybe jie wrong)
 
-
+rm(alex_dat)
+rm(jie_dat)

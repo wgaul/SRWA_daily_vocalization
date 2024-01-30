@@ -5,7 +5,7 @@
 ## 
 ## author: Willson Gaul  willson.gaul@gmail.com
 ## created: 23 July 2022
-## last modified: 28 Oct 2023
+## last modified: 30 Jan 2024
 ######################
 
 warning("Set working directory to source file location.")
@@ -20,21 +20,26 @@ library(hms)
 
 if(!dir.exists("./saved_objects")) dir.create("./saved_objects")
 
+# which device is the script being run on?
+data_in_wd <- TRUE # use this if data .csv files are stored in the same directory as the R scripts.
 on_cloud <- FALSE
-check_student_data <- FALSE # compare students' data for trustworthiness?
-# fit gams?  Takes time.  If FALSE, will try to load fitted models from saved 
-# objects
-fit_gam <- FALSE
+on_wglaptop <- FALSE
+
+check_student_data <- TRUE # compare students' data for trustworthiness?
 fit_rf <- TRUE # run the rf_srwaw.R script?
 # fit rf models?  If false, model results will be loaded from saved objects
-refit_rf_models <- FALSE 
+refit_rf_models <- TRUE 
+# fit exploratory gams?  Takes time.  If FALSE, will try to load fitted models 
+# from saved objects
+fit_gam <- FALSE
+
+
+## read in and clean data to analyze
+source("./clean_data_srwa.R")
 
 if(check_student_data) {
   source("compare_students_data_SRWA.R")
 }
-
-## read in and clean data to analyze
-source("./clean_data_srwa.R")
 
 ## fit models
 if(fit_gam) source("./gam_raw_data_srwa.R")
