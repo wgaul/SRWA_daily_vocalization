@@ -107,6 +107,14 @@ daily_pattern_plot <- ggplot(data = rf_boot_binCV_01_testData_summarised,
   theme_bw()
 daily_pattern_plot
 
+daily_pattern_plot_bw <- daily_pattern_plot + 
+  geom_line(aes(y = pred_rf_binCV01_mean), size = 0.1*t_size) +
+  geom_line(linetype = "dashed", aes(y = up_95_ci), 
+            size = 0.07*t_size) + 
+  geom_line(linetype = "dashed", aes(y = low_95_ci), 
+            size = 0.07*t_size, alpha = 2)
+daily_pattern_plot_bw
+
 ### end bootstrap graphs ---------
 
 
@@ -123,6 +131,10 @@ ggplot(data = srwa, aes(x = time_of_day, y = as.numeric(SRWA))) +
 ### Save plots ---------------------------------------------
 ## save as jpg
 ggsave("Fig1.jpg", daily_pattern_plot + 
+         theme(text = element_text(size = t_size)), 
+       width = 25, height = 25, units = "cm", 
+       device = "jpg")
+ggsave("Fig1_bw.jpg", daily_pattern_plot_bw + 
          theme(text = element_text(size = t_size)), 
        width = 25, height = 25, units = "cm", 
        device = "jpg")
